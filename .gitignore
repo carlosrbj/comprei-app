@@ -1,0 +1,78 @@
+# ─── Claude / MCP (tokens sensíveis) ────────────────────────────────────────
+.claude/
+.mcp.json
+
+# ─── Dependencies ────────────────────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+
+# ─── Build outputs ───────────────────────────────────────────────────────────
+dist/
+build/
+/generated/
+
+# ─── Environment / Secrets (NEVER commit these) ──────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── Expo / React Native ─────────────────────────────────────────────────────
+.expo/
+expo-env.d.ts
+web-build/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+apps/mobile/ios/
+apps/mobile/android/
+apps/mobile/credentials/
+apps/mobile/credentials.json
+apps/mobile/.kotlin/
+
+# ─── Metro bundler ───────────────────────────────────────────────────────────
+.metro-health-check*
+
+# ─── Prisma generated ────────────────────────────────────────────────────────
+apps/backend/generated/
+apps/backend/src/generated/
+
+# ─── Puppeteer / Chrome cache ────────────────────────────────────────────────
+.cache/
+.cache/puppeteer/
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─── Testing ─────────────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+
+# ─── IDE ─────────────────────────────────────────────────────────────────────
+.idea/
+*.sublime-workspace
+.vscode/
+!.vscode/extensions.json
+
+# ─── OS ──────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.pem
+
+# ─── TypeScript ──────────────────────────────────────────────────────────────
+*.tsbuildinfo
+
+# ─── Temp ────────────────────────────────────────────────────────────────────
+.temp
+.tmp
+pids
+*.pid
+*.pid.lock

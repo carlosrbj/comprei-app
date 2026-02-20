@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Requisitos — App NF-e Smart</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FAFAF7;
+    --surface: #FFFFFF;
+    --primary: #4CAF7D;
+    --primary-light: #E8F5EE;
+    --secondary: #F5A623;
+    --secondary-light: #FEF5E7;
+    --accent: #1B4F72;
+    --accent-light: #EAF2F8;
+    --text: #1C1C1E;
+    --text-muted: #6B7280;
+    --border: #EBEBEB;
+    --danger: #E74C3C;
+    --danger-light: #FDEDEC;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 40px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ---- HEADER ---- */
+  header {
+    background: linear-gradient(135deg, #0F2027 0%, #203A43 50%, #1B4F72 100%);
+    padding: 80px 40px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(76,175,125,0.25) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; left: 20%;
+    width: 250px; height: 250px;
+    background: radial-gradient(circle, rgba(245,166,35,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header-content {
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(76,175,125,0.2);
+    border: 1px solid rgba(76,175,125,0.4);
+    color: #7DFFB3;
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeInDown 0.6s ease both;
+  }
+  .header-badge::before {
+    content: '';
+    width: 7px; height: 7px;
+    background: #4CAF7D;
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+  header h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    font-weight: 800;
+    color: #FFFFFF;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    animation: fadeInDown 0.6s ease 0.1s both;
+  }
+  header h1 span {
+    color: #4CAF7D;
+  }
+  header p.subtitle {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.65);
+    margin-top: 16px;
+    max-width: 560px;
+    animation: fadeInDown 0.6s ease 0.2s both;
+  }
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+    animation: fadeInDown 0.6s ease 0.3s both;
+  }
+  .meta-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 8px 18px;
+    border-radius: 100px;
+    color: rgba(255,255,255,0.8);
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  .meta-pill .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  /* ---- NAVIGATION ---- */
+  .toc {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .toc-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .toc-inner::-webkit-scrollbar { display: none; }
+  .toc-link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 16px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: 'Sora', sans-serif;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .toc-link:hover {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  /* ---- MAIN ---- */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 40px 100px;
+  }
+
+  /* ---- SECTIONS ---- */
+  section {
+    margin-bottom: 72px;
+    animation: fadeInUp 0.5s ease both;
+  }
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+  .section-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
+  }
+  .icon-green { background: var(--primary-light); }
+  .icon-orange { background: var(--secondary-light); }
+  .icon-blue { background: var(--accent-light); }
+  .icon-red { background: var(--danger-light); }
+  .icon-purple { background: #F3E8FF; }
+  .icon-teal { background: #E0F7FA; }
+
+  .section-title-group h2 {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .section-title-group p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    margin-top: 4px;
+  }
+
+  /* ---- FEATURE CARDS GRID ---- */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--card-accent, var(--primary));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: transparent;
+  }
+  .card:hover::before {
+    transform: scaleX(1);
+  }
+  .card-tag {
+    display: inline-block;
+    font-family: 'Sora', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 14px;
+  }
+  .tag-core { background: var(--primary-light); color: var(--primary); }
+  .tag-smart { background: var(--accent-light); color: var(--accent); }
+  .tag-social { background: var(--secondary-light); color: #D4890A; }
+  .tag-extra { background: #F3E8FF; color: #7C3AED; }
+
+  .card h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .card p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .card-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  /* ---- CATEGORY GRID ---- */
+  .category-section {
+    margin-bottom: 32px;
+  }
+  .category-section h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tags-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tag-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text);
+    transition: all 0.2s;
+    cursor: default;
+    box-shadow: var(--shadow-sm);
+  }
+  .tag-chip:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--primary-light);
+    transform: translateY(-1px);
+  }
+  .tag-chip .emoji {
+    font-size: 14px;
+  }
+
+  /* ---- REPORTS GRID ---- */
+  .reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .report-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s ease;
+  }
+  .report-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+  .report-number {
+    font-family: 'Sora', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .report-card h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  .report-card p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .report-badge {
+    display: inline-block;
+    margin-top: 14px;
+    font-family: 'Sora', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  .report-badge.orange { background: var(--secondary-light); color: #D4890A; }
+  .report-badge.blue { background: var(--accent-light); color: var(--accent); }
+  .report-badge.purple { background: #F3E8FF; color: #7C3AED; }
+
+  /* ---- DIFFERENTIALS ---- */
+  .diff-list {
+    display: grid;
+    gap: 12px;
+  }
+  .diff-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.25s;
+  }
+  .diff-item:hover {
+    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+    transform: translateX(4px);
+  }
+  .diff-num {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+    min-width: 44px;
+  }
+  .diff-content h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+  .diff-content p {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ---- DESIGN SECTION ---- */
+  .design-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 600px) {
+    .design-grid { grid-template-columns: 1fr; }
+  }
+
+  .color-palette {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    grid-column: 1 / -1;
+  }
+  .color-palette h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 18px;
+  }
+  .palette-swatches {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .swatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 80px;
+  }
+  .swatch-color {
+    width: 100%;
+    height: 56px;
+    border-radius: 10px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+  }
+  .swatch-color::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  }
+  .swatch-label {
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.3;
+  }
+  .swatch-hex {
+    font-family: 'DM Sans', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
+
+  .design-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+  }
+  .design-card h3 {
+    font-family: 'Sora', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+  }
+
+  .font-demo {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .font-demo:last-child { border-bottom: none; }
+  .font-name {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 4px;
+  }
+  .font-sample-sora {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.02em;
+  }
+  .font-sample-dm {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .ux-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .ux-step:last-child { border-bottom: none; }
+  .step-num {
+    width: 28px;
+    height: 28px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Sora', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .step-text {
+    font-size: 0.875rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .step-arrow {
+    color: var(--text-muted);
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  /* ---- FLOW SECTION ---- */
+  .flow-container {
+    background: linear-gradient(135deg, #0F2027, #203A43, #1B4F72);
+    border-radius: var(--radius);
+    padding: 36px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .flow-container::-webkit-scrollbar { display: none; }
+  .flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 110px;
+  }
+  .flow-icon {
+    width: 52px;
+    height: 52px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    backdrop-filter: blur(8px);
+  }
+  .flow-label {
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    text-align: center;
+    line-height: 1.3;
+  }
+  .flow-time {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    font-family: 'Sora', sans-serif;
+  }
+  .flow-arrow {
+    color: rgba(255,255,255,0.3);
+    font-size: 18px;
+    flex-shrink: 0;
+    padding: 0 4px;
+    padding-bottom: 28px;
+  }
+
+  /* ---- CALLOUT ---- */
+  .callout {
+    background: var(--primary-light);
+    border: 1px solid rgba(76,175,125,0.3);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-top: 20px;
+  }
+  .callout-icon { font-size: 20px; flex-shrink: 0; }
+  .callout p {
+    font-size: 0.9rem;
+    color: #1D6B44;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+  .callout strong { font-weight: 700; }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background: var(--text);
+    padding: 40px;
+    text-align: center;
+  }
+  footer p {
+    color: rgba(255,255,255,0.4);
+    font-size: 0.85rem;
+  }
+  footer strong {
+    color: var(--primary);
+  }
+
+  /* ---- PLANS TABLE ---- */
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 700px) { .plans-grid { grid-template-columns: 1fr; } }
+
+  .plan-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 22px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    transition: all .25s;
+  }
+  .plan-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+  .plan-card.featured {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px var(--primary-light), var(--shadow-md);
+  }
+  .plan-badge-top {
+    position: absolute;
+    top: -13px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    color: #fff;
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 100px;
+    white-space: nowrap;
+  }
+  .plan-name {
+    font-family: 'Sora', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-bottom: 10px;
+  }
+  .plan-price {
+    font-family: 'Sora', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -.03em;
+    line-height: 1;
+  }
+  .plan-price sup { font-size: 1rem; font-weight: 600; vertical-align: super; }
+  .plan-price sub { font-size: .9rem; font-weight: 500; color: var(--text-muted); }
+  .plan-desc { font-size: .82rem; color: var(--text-muted); margin: 8px 0 18px; line-height: 1.5; }
+  .plan-features { list-style: none; }
+  .plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: .875rem;
+    color: var(--text);
+    padding: 5px 0;
+    border-bottom: 1px solid #F5F5F3;
+    line-height: 1.4;
+  }
+  .plan-features li:last-child { border-bottom: none; }
+  .feat-yes { color: var(--primary); font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+  .feat-no { color: var(--border); font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+  .feat-star { color: var(--secondary); font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ---- REVENUE TABLE ---- */
+  .revenue-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+  }
+  .revenue-table th {
+    background: var(--accent);
+    color: rgba(255,255,255,.8);
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    padding: 12px 16px;
+    text-align: left;
+  }
+  .revenue-table td {
+    padding: 12px 16px;
+    font-size: .875rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .revenue-table tr:last-child td { border-bottom: none; }
+  .revenue-table tr:nth-child(even) td { background: #FAFAF7; }
+  .revenue-table .highlight td {
+    background: var(--primary-light) !important;
+    font-weight: 700;
+    color: var(--primary);
+  }
+  .revenue-table .num {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  /* ---- MESSAGE CARDS ---- */
+  .msg-cards { display: grid; gap: 12px; }
+  .msg-card {
+    background: linear-gradient(135deg, #0F2027, #1B4F72);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+    transition: transform .2s;
+  }
+  .msg-card:hover { transform: translateX(4px); }
+  .msg-card::after {
+    content: '';
+    position: absolute;
+    right: -20px; top: -20px;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(76,175,125,.2) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .msg-emoji { font-size: 28px; flex-shrink: 0; }
+  .msg-title {
+    font-family: 'Sora', sans-serif;
+    font-size: .9rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .msg-body { font-size: .82rem; color: rgba(255,255,255,.65); line-height: 1.55; }
+  .msg-variable { color: #7DFFB3; font-weight: 700; }
+
+  /* ---- GROWTH PHASES ---- */
+  .growth-phases { display: grid; gap: 16px; }
+  .phase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all .25s;
+  }
+  .phase-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .phase-header {
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .phase-num {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px; font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .phase-title-group { flex: 1; }
+  .phase-title {
+    font-family: 'Sora', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .phase-range {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .phase-cost {
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 100px;
+  }
+  .phase-body { padding: 0 22px 20px; }
+  .phase-actions { display: grid; gap: 8px; }
+  .phase-action {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+  }
+  .action-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .action-text { font-size: .875rem; color: var(--text); line-height: 1.5; }
+  .action-text strong { color: var(--text); font-weight: 700; }
+  .action-metric {
+    font-family: 'Sora', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-light);
+    padding: 2px 8px;
+    border-radius: 100px;
+    margin-left: 6px;
+    white-space: nowrap;
+  }
+
+  /* ---- COST BOX ---- */
+  .cost-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 580px) { .cost-grid { grid-template-columns: 1fr; } }
+  .cost-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .cost-label {
+    font-family: 'Sora', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 6px;
+  }
+  .cost-value {
+    font-family: 'Sora', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -.02em;
+  }
+  .cost-desc { font-size: .8rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
+
+  /* ---- ANIMATIONS ---- */
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 640px) {
+    header { padding: 50px 20px 40px; }
+    main { padding: 40px 20px 60px; }
+    .toc-inner { padding: 0 20px; }
+    .cards-grid { grid-template-columns: 1fr; }
+    .reports-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-content">
+    <div class="header-badge">
+      <span>Documento de Requisitos</span>
+    </div>
+    <h1>App <span>NF-e</span> Smart<br>Levantamento Completo</h1>
+    <p class="subtitle">Funcionalidades, categorias, relatórios, diferenciais e diretrizes de design para o aplicativo de controle de gastos com notas fiscais.</p>
+    <div class="header-meta">
+      <div class="meta-pill"><span class="dot" style="background:#4CAF7D"></span>v2.0 · Fevereiro 2026</div>
+      <div class="meta-pill"><span class="dot" style="background:#F5A623"></span>8 seções · 50+ funcionalidades</div>
+      <div class="meta-pill"><span class="dot" style="background:#7C3AED"></span>Mobile First</div>
+      <div class="meta-pill"><span class="dot" style="background:#E74C3C"></span>Estratégia de Monetização</div>
+    </div>
+  </div>
+</header>
+
+<!-- NAVIGATION -->
+<nav class="toc">
+  <div class="toc-inner">
+    <a href="#funcionalidades" class="toc-link">⚡ Funcionalidades</a>
+    <a href="#categorias" class="toc-link">🏷️ Categorias</a>
+    <a href="#relatorios" class="toc-link">📊 Relatórios</a>
+    <a href="#diferenciais" class="toc-link">✨ Diferenciais</a>
+    <a href="#design" class="toc-link">🎨 Design & UX</a>
+    <a href="#fluxo" class="toc-link">🔄 Fluxo de Scan</a>
+    <a href="#monetizacao" class="toc-link">💰 Monetização</a>
+    <a href="#liberdade" class="toc-link">🍺 Liberdade de Sexta</a>
+    <a href="#crescimento" class="toc-link">📣 Crescimento</a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main>
+
+  <!-- SECTION 1: FUNCIONALIDADES -->
+  <section id="funcionalidades">
+    <div class="section-header">
+      <div class="section-icon icon-green">⚡</div>
+      <div class="section-title-group">
+        <h2>Funcionalidades do App</h2>
+        <p>Do core essencial aos diferenciais técnicos que elevam a experiência</p>
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card" style="--card-accent: #4CAF7D">
+        <span class="card-icon">📷</span>
+        <span class="card-tag tag-core">Core</span>
+        <h3>Leitura de QR Code / NF-e</h3>
+        <p>Escaneamento da chave de acesso da nota fiscal eletrônica com OCR de fallback para notas físicas ou tickets.</p>
+      </div>
+
+      <div class="card" style="--card-accent: #4CAF7D">
+        <span class="card-icon">🤖</span>
+        <span class="card-tag tag-core">Core</span>
+        <h3>Categorização Automática por IA</h3>
+        <p>Classifica produtos automaticamente com sugestão de categoria e permite ajuste manual com aprendizado progressivo.</p>
+      </div>
+
+      <div class="card" style="--card-accent: #4CAF7D">
+        <span class="card-icon">📈</span>
+        <span class="card-tag tag-core">Core</span>
+        <h3>Dashboard Mensal de Gastos</h3>
+        <p>Visão consolidada de gastos com gráficos de categorias, evolução temporal e comparativo com mês anterior.</p>
+      </div>
+
+      <div class="card" style="--card-accent: #1B4F72">
+        <span class="card-icon">💰</span>
+        <span class="card-tag tag-smart">Inteligente</span>
+        <h3>Comparador de Preços</h3>
+        <p>Detecta o mesmo produto em diferentes lojas e datas. Exibe a variação de preço e qual estabelecimento foi mais barato.</p>
+      </div>
+
+      <div class="card" style="--card-accent: #1B4F72">
+        <span class="card-icon">🎯</span>
+        <span class="card-tag tag-smart">Inteligente</span>
+        <h3>Metas e Alertas de Orçamento</h3>
+        <p>Define limites mensais por categoria e envia alertas progressivos quando 50%, 80% e 100% do orçamento é atingido.</p>
+      </div>
+
+      <div class="card" style="--card-accent: #1B4F72">
+        <span class="card-icon">📉</span>
+        <span class="card-tag tag-smart">Inteligente</span>
+        <h3>Inflação Pessoal</h3>
+        <p>Monitora a evolução de preço dos seus produtos habituais ao longo do tempo. Mostra quais itens subiram mais.</p>
+      </div>
+
+      <div class="card" style="--card-accent: #F5A623">
+        <span class="card-icon">👨‍👩‍👧</span>
+        <span class="card-tag tag-social">Família</span>
+        <h3>Modo Família</h3>
+        <p>Contas compartilhadas com perfis individuais, divisão automática de despesas e notificações de compras dos membros.</p>
+      </div>
+
+      <div class="card" style="--card-accent: #F5A623">
+        <span class="card-icon">📋</span>
+        <span class="card-tag tag-social">Família</span>
+        <h3>Lista de Compras Inteligente</h3>
+        <p>Gera lista automática com base no histórico de itens recorrentes e estima o valor total da compra antes de ir ao mercado.</p>
+      </div>
+
+      <div class="card" style="--card-accent: #7C3AED">
+        <span class="card-icon">☁️</span>
+        <span class="card-tag tag-extra">Extra</span>
+        <h3>Modo Offline + Sync</h3>
+        <p>Funciona sem internet e sincroniza automaticamente quando a conexão é restaurada. Backup no Google Drive ou iCloud.</p>
+      </div>
+
+      <div class="card" style="--card-accent: #7C3AED">
+        <span class="card-icon">📤</span>
+        <span class="card-tag tag-extra">Extra</span>
+        <h3>Exportação de Dados</h3>
+        <p>Exporta relatórios em PDF, Excel e CSV para uso externo, declaração de IR ou controle em outras ferramentas.</p>
+      </div>
+
+      <div class="card" style="--card-accent: #7C3AED">
+        <span class="card-icon">💬</span>
+        <span class="card-tag tag-extra">Extra</span>
+        <h3>Assistente de Chat</h3>
+        <p>Pergunta ao app em linguagem natural: "Quanto gastei com carne em março?" e recebe respostas contextuais instantâneas.</p>
+      </div>
+
+      <div class="card" style="--card-accent: #7C3AED">
+        <span class="card-icon">🔮</span>
+        <span class="card-tag tag-extra">Extra</span>
+        <h3>Previsão de Gastos</h3>
+        <p>Estima o gasto total do mês com base no ritmo atual de compras, com alertas de tendência de estouro de orçamento.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: CATEGORIAS -->
+  <section id="categorias">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🏷️</div>
+      <div class="section-title-group">
+        <h2>Categorias de Classificação</h2>
+        <p>Estrutura completa para organizar produtos, locais e tipos de compra</p>
+      </div>
+    </div>
+
+    <div class="category-section">
+      <h3>🛒 Produtos (itens da nota)</h3>
+      <div class="tags-wrap">
+        <span class="tag-chip"><span class="emoji">🥩</span>Carnes e Proteínas</span>
+        <span class="tag-chip"><span class="emoji">🥛</span>Laticínios e Frios</span>
+        <span class="tag-chip"><span class="emoji">🥬</span>Frutas, Legumes e Verduras</span>
+        <span class="tag-chip"><span class="emoji">🍞</span>Padaria e Confeitaria</span>
+        <span class="tag-chip"><span class="emoji">🥤</span>Bebidas Não-alcoólicas</span>
+        <span class="tag-chip"><span class="emoji">🍺</span>Bebidas Alcoólicas</span>
+        <span class="tag-chip"><span class="emoji">🧊</span>Congelados e Semi-prontos</span>
+        <span class="tag-chip"><span class="emoji">🧴</span>Higiene e Beleza</span>
+        <span class="tag-chip"><span class="emoji">🧹</span>Limpeza Doméstica</span>
+        <span class="tag-chip"><span class="emoji">👶</span>Bebê e Infantil</span>
+        <span class="tag-chip"><span class="emoji">🐾</span>Pet Shop</span>
+        <span class="tag-chip"><span class="emoji">💊</span>Farmácia e Saúde</span>
+        <span class="tag-chip"><span class="emoji">🍿</span>Snacks e Guloseimas</span>
+        <span class="tag-chip"><span class="emoji">🧂</span>Temperos e Conservas</span>
+        <span class="tag-chip"><span class="emoji">🫙</span>Grãos e Cereais</span>
+      </div>
+    </div>
+
+    <div class="category-section">
+      <h3>🏪 Tipo de Estabelecimento</h3>
+      <div class="tags-wrap">
+        <span class="tag-chip"><span class="emoji">🏬</span>Supermercado</span>
+        <span class="tag-chip"><span class="emoji">🏭</span>Atacado / Atacarejo</span>
+        <span class="tag-chip"><span class="emoji">💊</span>Farmácia</span>
+        <span class="tag-chip"><span class="emoji">🥖</span>Padaria</span>
+        <span class="tag-chip"><span class="emoji">🌿</span>Hortifruti / Feira</span>
+        <span class="tag-chip"><span class="emoji">🥩</span>Açougue / Peixaria</span>
+        <span class="tag-chip"><span class="emoji">🏪</span>Conveniência</span>
+        <span class="tag-chip"><span class="emoji">🍽️</span>Restaurante / Delivery</span>
+        <span class="tag-chip"><span class="emoji">⛽</span>Posto de Combustível</span>
+        <span class="tag-chip"><span class="emoji">🏢</span>Loja de Departamento</span>
+      </div>
+    </div>
+
+    <div class="category-section">
+      <h3>💳 Tipo de Gasto</h3>
+      <div class="tags-wrap">
+        <span class="tag-chip"><span class="emoji">🏠</span>Essencial</span>
+        <span class="tag-chip"><span class="emoji">🔄</span>Recorrente</span>
+        <span class="tag-chip"><span class="emoji">🎉</span>Eventual / Lazer</span>
+        <span class="tag-chip"><span class="emoji">❤️</span>Saúde</span>
+        <span class="tag-chip"><span class="emoji">🚨</span>Emergência</span>
+        <span class="tag-chip"><span class="emoji">🎁</span>Presente / Ocasião</span>
+      </div>
+    </div>
+
+    <div class="category-section">
+      <h3>🛍️ Tipo de Compra</h3>
+      <div class="tags-wrap">
+        <span class="tag-chip"><span class="emoji">📦</span>Compra Grande (Mensal)</span>
+        <span class="tag-chip"><span class="emoji">⚡</span>Compra Rápida (Reposição)</span>
+        <span class="tag-chip"><span class="emoji">📋</span>Compra Planejada</span>
+        <span class="tag-chip"><span class="emoji">💡</span>Compra por Impulso</span>
+        <span class="tag-chip"><span class="emoji">🤝</span>Compra Coletiva</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: RELATÓRIOS -->
+  <section id="relatorios">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📊</div>
+      <div class="section-title-group">
+        <h2>Relatórios e Análises</h2>
+        <p>Insights que transformam dados em decisões inteligentes de consumo</p>
+      </div>
+    </div>
+
+    <div class="reports-grid">
+      <div class="report-card">
+        <div class="report-number">01</div>
+        <h3>Gastos por Categoria</h3>
+        <p>Donut chart com percentual de cada categoria no mês, comparativo com o mês anterior e variação em R$ e %.</p>
+        <span class="report-badge">Mensal</span>
+      </div>
+
+      <div class="report-card">
+        <div class="report-number">02</div>
+        <h3>Top Produtos & Itens</h3>
+        <p>Os 10 produtos mais comprados, os 10 mais caros e os itens com maior frequência de compra no período.</p>
+        <span class="report-badge">Mensal</span>
+      </div>
+
+      <div class="report-card">
+        <div class="report-number">03</div>
+        <h3>Ranking de Estabelecimentos</h3>
+        <p>Quanto foi gasto em cada loja, quantas visitas, ticket médio por visita e participação percentual no total.</p>
+        <span class="report-badge">Mensal</span>
+      </div>
+
+      <div class="report-card">
+        <div class="report-number">04</div>
+        <h3>Evolução Temporal</h3>
+        <p>Linha do tempo dos últimos 6 a 12 meses, identificando sazonalidades e tendências no comportamento de compra.</p>
+        <span class="report-badge orange">Tendência</span>
+      </div>
+
+      <div class="report-card">
+        <div class="report-number">05</div>
+        <h3>Perfil de Consumo</h3>
+        <p>Gráfico radar com 6 dimensões: alimentação, saúde, lazer, casa, higiene e outros. Mostra onde você aloca mais energia.</p>
+        <span class="report-badge orange">Tendência</span>
+      </div>
+
+      <div class="report-card">
+        <div class="report-number">06</div>
+        <h3>Inflação Pessoal</h3>
+        <p>Evolução de preço dos seus produtos recorrentes. Mostra quais subiram mais e quanto isso impactou seu orçamento.</p>
+        <span class="report-badge blue">Econômico</span>
+      </div>
+
+      <div class="report-card">
+        <div class="report-number">07</div>
+        <h3>Economia Inteligente</h3>
+        <p>Quanto você economizou comprando no estabelecimento mais barato vs. caro para os mesmos itens.</p>
+        <span class="report-badge blue">Econômico</span>
+      </div>
+
+      <div class="report-card">
+        <div class="report-number">08</div>
+        <h3>Wrapped Anual</h3>
+        <p>Resumo do ano em estilo storytelling visual: total gasto, categorias favoritas, loja favorita, produto campeão e mais.</p>
+        <span class="report-badge purple">Especial</span>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="callout-icon">💡</span>
+      <p><strong>Dica de produto:</strong> O relatório "Wrapped Anual" é um dos maiores drivers de viralização — usuários tendem a compartilhar esses resumos em redes sociais, gerando aquisição orgânica gratuita.</p>
+    </div>
+  </section>
+
+  <!-- SECTION 4: DIFERENCIAIS -->
+  <section id="diferenciais">
+    <div class="section-header">
+      <div class="section-icon icon-purple">✨</div>
+      <div class="section-title-group">
+        <h2>Diferenciais Competitivos</h2>
+        <p>O que faz o usuário escolher, continuar e recomendar o app</p>
+      </div>
+    </div>
+
+    <div class="diff-list">
+      <div class="diff-item">
+        <div class="diff-num">01</div>
+        <div class="diff-content">
+          <h3>Insight Surpresa no Primeiro Scan</h3>
+          <p>Assim que a primeira nota é escaneada, o app exibe imediatamente um insight marcante: "Você gastou 34% do total em bebidas — sua categoria mais cara hoje." Gera o famoso "nossa, não sabia disso" instantâneo.</p>
+        </div>
+      </div>
+
+      <div class="diff-item">
+        <div class="diff-num">02</div>
+        <div class="diff-content">
+          <h3>Demo Interativo no Onboarding</h3>
+          <p>Antes de criar conta, o usuário experimenta o app com dados fictícios reais. Ele vê o dashboard funcionando, toca nos gráficos, explora relatórios. O valor é sentido antes do cadastro — reduz drasticamente o churn no onboarding.</p>
+        </div>
+      </div>
+
+      <div class="diff-item">
+        <div class="diff-num">03</div>
+        <div class="diff-content">
+          <h3>Gamificação com Propósito</h3>
+          <p>Streak de notas escaneadas, badges temáticos ("Mestre do Atacado", "Fiel ao Hortifruti") e desafios mensais como "Reduza 20% nos snacks". A gamificação é sutil — recompensa disciplina, não consumo excessivo.</p>
+        </div>
+      </div>
+
+      <div class="diff-item">
+        <div class="diff-num">04</div>
+        <div class="diff-content">
+          <h3>IA Visível e Explicável</h3>
+          <p>Os insights gerados por IA são concretos e acionáveis: "No Atacadão, o frango está R$4,20/kg mais barato que onde você costuma comprar." Não é "você gasta muito" — é uma recomendação específica com dado real.</p>
+        </div>
+      </div>
+
+      <div class="diff-item">
+        <div class="diff-num">05</div>
+        <div class="diff-content">
+          <h3>Benchmarking Anônimo</h3>
+          <p>"Famílias similares à sua gastam em média R$890/mês com alimentação — você está R$210 acima." Comparações anônimas com usuários de perfil semelhante criam motivação externa e validação social do app.</p>
+        </div>
+      </div>
+
+      <div class="diff-item">
+        <div class="diff-num">06</div>
+        <div class="diff-content">
+          <h3>Animação Satisfatória no Scan</h3>
+          <p>O QR code "explode" em tags coloridas de categorias ao ser lido. Vibração háptica + som suave de confirmação. Pequeno detalhe com enorme impacto no prazer de uso — o scan deve ser viciante como um bom game.</p>
+        </div>
+      </div>
+
+      <div class="diff-item">
+        <div class="diff-num">07</div>
+        <div class="diff-content">
+          <h3>Relatório "Wrapped" Compartilhável</h3>
+          <p>No fim de cada ano, um resumo visual estilo Spotify Wrapped com os maiores números do usuário. Formatado para compartilhamento direto no Instagram Stories e WhatsApp — aquisição orgânica poderosa.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 5: DESIGN -->
+  <section id="design">
+    <div class="section-header">
+      <div class="section-icon icon-teal">🎨</div>
+      <div class="section-title-group">
+        <h2>Design, Cores e UX</h2>
+        <p>Diretrizes visuais e de experiência para o produto final</p>
+      </div>
+    </div>
+
+    <div class="color-palette">
+      <h3>🎨 Paleta de Cores — "Fresh Finance"</h3>
+      <div class="palette-swatches">
+        <div class="swatch">
+          <div class="swatch-color" style="background:#FAFAF7; border: 1px solid #eee;"></div>
+          <span class="swatch-label">Background</span>
+          <span class="swatch-hex">#FAFAF7</span>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#4CAF7D;"></div>
+          <span class="swatch-label">Primária</span>
+          <span class="swatch-hex">#4CAF7D</span>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#F5A623;"></div>
+          <span class="swatch-label">Secundária</span>
+          <span class="swatch-hex">#F5A623</span>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#1B4F72;"></div>
+          <span class="swatch-label">Acento</span>
+          <span class="swatch-hex">#1B4F72</span>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#1C1C1E;"></div>
+          <span class="swatch-label">Texto</span>
+          <span class="swatch-hex">#1C1C1E</span>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#E74C3C;"></div>
+          <span class="swatch-label">Alerta</span>
+          <span class="swatch-hex">#E74C3C</span>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color" style="background:#0F1117;"></div>
+          <span class="swatch-label">Dark BG</span>
+          <span class="swatch-hex">#0F1117</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="design-grid" style="margin-top: 16px;">
+      <div class="design-card">
+        <h3>✍️ Tipografia</h3>
+        <div class="font-demo">
+          <div class="font-name">Display / Títulos — Sora</div>
+          <div class="font-sample-sora">R$ 2.847,50</div>
+        </div>
+        <div class="font-demo">
+          <div class="font-name">Corpo / Dados — DM Sans</div>
+          <div class="font-sample-dm">Alimentação básica representa 42% do seu gasto mensal.</div>
+        </div>
+      </div>
+
+      <div class="design-card">
+        <h3>📐 Princípios de Layout</h3>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 4px;">
+          <div style="display:flex; gap:10px; align-items:center">
+            <span style="font-size:16px">↗️</span>
+            <span style="font-size:0.875rem; color:var(--text)">Bottom nav com 4 tabs + FAB de scan centralizado</span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center">
+            <span style="font-size:16px">📱</span>
+            <span style="font-size:0.875rem; color:var(--text)">Cards com border-radius 16px e sombras suaves</span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center">
+            <span style="font-size:16px">🌙</span>
+            <span style="font-size:0.875rem; color:var(--text)">Modo escuro obrigatório para retenção noturna</span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center">
+            <span style="font-size:16px">📊</span>
+            <span style="font-size:0.875rem; color:var(--text)">Donut + barras horizontais — nunca pizza 2D genérica</span>
+          </div>
+          <div style="display:flex; gap:10px; align-items:center">
+            <span style="font-size:16px">✨</span>
+            <span style="font-size:0.875rem; color:var(--text)">Números "rolando" ao carregar — micro-animações impactantes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6: FLUXO -->
+  <section id="fluxo">
+    <div class="section-header">
+      <div class="section-icon icon-green">🔄</div>
+      <div class="section-title-group">
+        <h2>Fluxo de Escaneamento</h2>
+        <p>Da abertura do app ao insight — em menos de 15 segundos</p>
+      </div>
+    </div>
+
+    <div class="flow-container">
+      <div class="flow-step">
+        <div class="flow-icon">📱</div>
+        <div class="flow-label">Abrir App</div>
+        <div class="flow-time">0s</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon">👆</div>
+        <div class="flow-label">Tap no FAB</div>
+        <div class="flow-time">1s</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon">📷</div>
+        <div class="flow-label">Câmera Fullscreen</div>
+        <div class="flow-time">3s</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon">✅</div>
+        <div class="flow-label">QR Detectado<br><small style="color:#4CAF7D">vibração + som</small></div>
+        <div class="flow-time">6s</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon">📋</div>
+        <div class="flow-label">Prévia dos Itens</div>
+        <div class="flow-time">9s</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="flow-icon">💡</div>
+        <div class="flow-label">Nota Salva<br><small style="color:#F5A623">+ insight</small></div>
+        <div class="flow-time">&lt;15s</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-top:20px">
+      <span class="callout-icon">⚡</span>
+      <p><strong>Regra de ouro:</strong> O fluxo completo do scan deve ser concluído em menos de 15 segundos. Qualquer fricção além disso aumenta o abandono e reduz a frequência de uso. Velocidade é o principal driver de retenção neste tipo de app.</p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SECTION 7: MONETIZAÇÃO                      -->
+  <!-- ═══════════════════════════════════════════ -->
+  <section id="monetizacao">
+    <div class="section-header">
+      <div class="section-icon icon-green">💰</div>
+      <div class="section-title-group">
+        <h2>Monetização e Planos</h2>
+        <p>Estratégia de preço invisível — barato o suficiente para não pensar duas vezes</p>
+      </div>
+    </div>
+
+    <div class="plans-grid anim-1">
+
+      <!-- FREE -->
+      <div class="plan-card">
+        <div class="plan-name">Gratuito</div>
+        <div class="plan-price"><sup>R$</sup>0<sub>/mês</sub></div>
+        <p class="plan-desc">Para experimentar e criar o hábito de escanear.</p>
+        <ul class="plan-features">
+          <li><span class="feat-yes">✓</span> Até 20 notas por mês</li>
+          <li><span class="feat-yes">✓</span> Histórico de 30 dias</li>
+          <li><span class="feat-yes">✓</span> Dashboard básico</li>
+          <li><span class="feat-yes">✓</span> 5 categorias fixas</li>
+          <li><span class="feat-yes">✓</span> Gamificação (streaks, badges)</li>
+          <li><span class="feat-no">✗</span> Relatórios avançados</li>
+          <li><span class="feat-no">✗</span> Comparador de preços</li>
+          <li><span class="feat-no">✗</span> Liberdade de Sexta 🍺</li>
+          <li><span class="feat-no">✗</span> Exportação PDF/CSV</li>
+          <li><span class="feat-no">✗</span> Alertas de orçamento</li>
+        </ul>
+      </div>
+
+      <!-- PRO MENSAL -->
+      <div class="plan-card featured">
+        <div class="plan-badge-top">⭐ Mais popular</div>
+        <div class="plan-name">Pro Mensal</div>
+        <div class="plan-price"><sup>R$</sup>4,99<sub>/mês</sub></div>
+        <p class="plan-desc">O <strong>preço invisível</strong> — abaixo do limiar psicológico onde o usuário para pra pensar.</p>
+        <ul class="plan-features">
+          <li><span class="feat-yes">✓</span> Notas ilimitadas</li>
+          <li><span class="feat-yes">✓</span> Histórico completo</li>
+          <li><span class="feat-yes">✓</span> Todas as 15+ categorias</li>
+          <li><span class="feat-yes">✓</span> Relatórios avançados</li>
+          <li><span class="feat-yes">✓</span> Comparador de preços</li>
+          <li><span class="feat-star">🍺</span> <strong>Liberdade de Sexta</strong></li>
+          <li><span class="feat-yes">✓</span> Alertas de orçamento</li>
+          <li><span class="feat-yes">✓</span> Exportação PDF/CSV</li>
+          <li><span class="feat-yes">✓</span> Wrapped Anual compartilhável</li>
+          <li><span class="feat-no">✗</span> Modo Família</li>
+        </ul>
+      </div>
+
+      <!-- PRO ANUAL -->
+      <div class="plan-card">
+        <div class="plan-name">Pro Anual</div>
+        <div class="plan-price"><sup>R$</sup>39,99<sub>/ano</sub></div>
+        <p class="plan-desc">Equivale a <strong>R$3,33/mês</strong> — 33% de desconto. Melhora fluxo de caixa e reduz churn.</p>
+        <ul class="plan-features">
+          <li><span class="feat-yes">✓</span> Tudo do Pro Mensal</li>
+          <li><span class="feat-star">👨‍👩‍👧</span> <strong>Modo Família (4 membros)</strong></li>
+          <li><span class="feat-yes">✓</span> Prioridade no suporte</li>
+          <li><span class="feat-yes">✓</span> Acesso antecipado a features</li>
+          <li><span class="feat-star">💡</span> Ticket médio efetivo: R$5,80/mês</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="callout">
+      <span class="callout-icon">🎯</span>
+      <p><strong>Limite estratégico no free:</strong> 20 notas/mês (não 10). Generoso o suficiente para criar hábito, mas quem usa de verdade (15+ compras/mês) sente o limite naturalmente e converte sem nenhuma pressão.</p>
+    </div>
+
+    <div style="margin-top: 32px;">
+      <div class="section-label" style="margin-bottom:16px">📈 Projeção de Receita</div>
+      <table class="revenue-table">
+        <thead>
+          <tr>
+            <th>Usuários Pagantes</th>
+            <th>Receita Mensal</th>
+            <th>Receita Anual (est.)</th>
+            <th>Custo Infra</th>
+            <th>Margem</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">1.000</td>
+            <td class="num">R$ 4.990</td>
+            <td class="num">R$ 59.880</td>
+            <td>~R$ 100/mês</td>
+            <td style="color:var(--primary);font-weight:700">98%</td>
+          </tr>
+          <tr class="highlight">
+            <td class="num">5.000 ⭐</td>
+            <td class="num">R$ 24.950</td>
+            <td class="num">R$ 299.400</td>
+            <td>~R$ 400/mês</td>
+            <td>98%</td>
+          </tr>
+          <tr>
+            <td class="num">10.000</td>
+            <td class="num">R$ 49.900</td>
+            <td class="num">R$ 598.800</td>
+            <td>~R$ 700/mês</td>
+            <td style="color:var(--primary);font-weight:700">99%</td>
+          </tr>
+          <tr>
+            <td class="num">20.000</td>
+            <td class="num">R$ 99.800</td>
+            <td class="num">R$ 1.197.600</td>
+            <td>~R$ 1.200/mês</td>
+            <td style="color:var(--primary);font-weight:700">99%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="cost-grid" style="margin-top:16px">
+      <div class="cost-card">
+        <div class="cost-label">💸 Custo Marginal por Usuário</div>
+        <div class="cost-value">≈ R$ 0,08</div>
+        <div class="cost-desc">Sem estoque, entrega física ou atendimento humano. Custo de infra divide por todos os usuários ativos.</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-label">🤖 Custo de IA (5k users)</div>
+        <div class="cost-value">R$ 50–200</div>
+        <div class="cost-desc">5k users × 8 scans/mês = 40k chamadas. Usar modelos pequenos para categorização (barato) e modelos maiores apenas para insights semanais (pouco frequente).</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-label">🏦 Estratégia de Pagamento</div>
+        <div class="cost-value">Stripe / Kiwify</div>
+        <div class="cost-desc">Link externo no MVP para evitar taxa de 15–30% da Apple/Google. PIX nativo via Kiwify para Brasil. Implementar IAP só ao escalar.</div>
+      </div>
+      <div class="cost-card">
+        <div class="cost-label">📊 Ticket Médio Real</div>
+        <div class="cost-value">R$ 5,80</div>
+        <div class="cost-desc">Com 30% dos pagantes no plano anual (R$39,99 = R$3,33/mês), o ticket médio efetivo sobe para R$5,80 — 16% a mais por usuário.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SECTION 8: LIBERDADE DE SEXTA               -->
+  <!-- ═══════════════════════════════════════════ -->
+  <section id="liberdade">
+    <div class="section-header">
+      <div class="section-icon icon-orange">🍺</div>
+      <div class="section-title-group">
+        <h2>Feature: Liberdade de Sexta</h2>
+        <p>O principal argumento de venda do plano Pro — e o driver de compartilhamento orgânico</p>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+      <div class="cost-card" style="border-left:4px solid var(--primary)">
+        <div class="cost-label">📅 Quando</div>
+        <div class="cost-value" style="font-size:1.2rem">Toda Sexta, 17h</div>
+        <div class="cost-desc">Push notification automática para todos os usuários Pro com push token ativo.</div>
+      </div>
+      <div class="cost-card" style="border-left:4px solid var(--secondary)">
+        <div class="cost-label">🧮 Como Calcula</div>
+        <div class="cost-value" style="font-size:1.2rem">Economia Real</div>
+        <div class="cost-desc">Soma itens das categorias "supérfluas" da semana e converte em poder de compra de lazer concreto.</div>
+      </div>
+    </div>
+
+    <div class="callout" style="margin-bottom:24px">
+      <span class="callout-icon">🧠</span>
+      <p><strong>Por que funciona:</strong> Transforma controle financeiro em <strong>recompensa emocional</strong>. Em vez de culpa, o app gera antecipação de prazer. Cria um ritual semanal de abertura (retenção maior). É naturalmente compartilhável — "olha o que meu app me disse" vai direto pro story.</p>
+    </div>
+
+    <div class="section-label" style="margin-bottom:14px">💬 Exemplos de Mensagens (rotação aleatória)</div>
+    <div class="msg-cards anim-2">
+      <div class="msg-card">
+        <span class="msg-emoji">🍺</span>
+        <div>
+          <div class="msg-title">Você economizou <span class="msg-variable">R$ {valor}</span> essa semana!</div>
+          <div class="msg-body">Dá pra um churrasco pra 4 pessoas e ainda sobra pra cerveja. Bom fim de semana! 🎉</div>
+        </div>
+      </div>
+      <div class="msg-card">
+        <span class="msg-emoji">🎬</span>
+        <div>
+          <div class="msg-title">Bora gastar bem esse fim de semana?</div>
+          <div class="msg-body">Você cortou <span class="msg-variable">R$ {valor}</span> em supérfluos. Isso é exatamente um jantar no rodízio + Uber de volta pra casa. Você merece! 😎</div>
+        </div>
+      </div>
+      <div class="msg-card">
+        <span class="msg-emoji">🎡</span>
+        <div>
+          <div class="msg-title">Sua liberdade dessa semana: <span class="msg-variable">R$ {valor}</span></div>
+          <div class="msg-body">Cinema + pipoca + refrigerante pra dois, e ainda sobra troco. Curtam o fim de semana!</div>
+        </div>
+      </div>
+      <div class="msg-card">
+        <span class="msg-emoji">🍕</span>
+        <div>
+          <div class="msg-title">Missão cumprida! <span class="msg-variable">R$ {valor}</span> economizados.</div>
+          <div class="msg-body">Isso dá uma pizza boa, uma rodada de chopp e boa conversa. Semana controlada = fim de semana sem culpa!</div>
+        </div>
+      </div>
+      <div class="msg-card">
+        <span class="msg-emoji">🏖️</span>
+        <div>
+          <div class="msg-title">Fim de semana financiado! <span class="msg-variable">R$ {valor}</span> livres.</div>
+          <div class="msg-body">Sua disciplina durante a semana pagou seu lazer. Vai aproveitar sem culpa — você ganhou!</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:24px">
+      <div class="section-label" style="margin-bottom:12px">🏷️ Categorias Consideradas "Supérfluas"</div>
+      <div class="tags-wrap">
+        <span class="tag-chip"><span class="emoji">🍿</span>Snacks e Guloseimas</span>
+        <span class="tag-chip"><span class="emoji">🍺</span>Bebidas Alcoólicas</span>
+        <span class="tag-chip"><span class="emoji">💡</span>Compra por Impulso</span>
+        <span class="tag-chip"><span class="emoji">🎉</span>Eventual / Lazer</span>
+        <span class="tag-chip" style="border-style:dashed;color:var(--text-muted)">+ configurável pelo usuário</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SECTION 9: CRESCIMENTO                      -->
+  <!-- ═══════════════════════════════════════════ -->
+  <section id="crescimento">
+    <div class="section-header">
+      <div class="section-icon icon-blue">📣</div>
+      <div class="section-title-group">
+        <h2>Estratégia de Crescimento</h2>
+        <p>Três fases de aquisição — da tração orgânica ao B2B — com custo próximo de zero</p>
+      </div>
+    </div>
+
+    <div class="growth-phases">
+
+      <!-- FASE 1 -->
+      <div class="phase-card anim-1">
+        <div class="phase-header" style="background:var(--primary-light)">
+          <div class="phase-num" style="background:var(--primary)">1</div>
+          <div class="phase-title-group">
+            <div class="phase-title">Orgânico Puro</div>
+            <div class="phase-range">0 → 1.000 usuários</div>
+          </div>
+          <span class="phase-cost" style="background:var(--primary-light);color:var(--primary)">💸 Custo zero</span>
+        </div>
+        <div class="phase-body" style="margin-top:16px">
+          <div class="phase-actions">
+            <div class="phase-action">
+              <span class="action-icon">📱</span>
+              <div class="action-text"><strong>TikTok / Reels com o scan ao vivo</strong> — o gesto de escanear a nota e ver os dados explodirem em categorias coloridas é visualmente satisfatório e funciona muito bem em vídeo curto de 15s.</div>
+            </div>
+            <div class="phase-action">
+              <span class="action-icon">🎁</span>
+              <div class="action-text"><strong>Wrapped Anual compartilhável</strong> — card bonito com "Eu gastei R$ 28.400 em 2026 — R$ 4.200 foram supérfluos que virei lazer." Curiosidade genuína gera compartilhamento.</div>
+            </div>
+            <div class="phase-action">
+              <span class="action-icon">🍺</span>
+              <div class="action-text"><strong>Liberdade de Sexta nos stories</strong> — usuário recebe a notificação e compartilha naturalmente. Aquisição orgânica automática sem nenhum esforço adicional.
+              <span class="action-metric">Zero custo de aquisição</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FASE 2 -->
+      <div class="phase-card anim-2">
+        <div class="phase-header" style="background:var(--secondary-light)">
+          <div class="phase-num" style="background:var(--secondary)">2</div>
+          <div class="phase-title-group">
+            <div class="phase-title">Indicação com Incentivo</div>
+            <div class="phase-range">1.000 → 5.000 usuários</div>
+          </div>
+          <span class="phase-cost" style="background:var(--secondary-light);color:#b07418">CAC = R$ 1,66</span>
+        </div>
+        <div class="phase-body" style="margin-top:16px">
+          <div class="phase-actions">
+            <div class="phase-action">
+              <span class="action-icon">🤝</span>
+              <div class="action-text"><strong>Programa "Chama o Trampo"</strong> — indica 3 amigos que ativam o app → você ganha 1 mês Pro grátis. Custo real: R$ 4,99 ÷ 3 novos usuários = <strong>CAC de R$ 1,66</strong>.
+              <span class="action-metric">Retenção 40% maior</span></div>
+            </div>
+            <div class="phase-action">
+              <span class="action-icon">💬</span>
+              <div class="action-text"><strong>Grupos de WhatsApp e comunidades de finanças</strong> — o app resolve uma dor real e específica. Postagens em grupos de "vida financeira" e "economizar dinheiro" convertem bem por serem contextualizadas.</div>
+            </div>
+            <div class="phase-action">
+              <span class="action-icon">🎯</span>
+              <div class="action-text"><strong>Onboarding com demo interativo</strong> — antes do cadastro, o usuário experimenta o app com dados fictícios. Sente o valor antes de criar conta. Reduz abandono no onboarding em até 60%.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FASE 3 -->
+      <div class="phase-card anim-3">
+        <div class="phase-header" style="background:var(--accent-light)">
+          <div class="phase-num" style="background:var(--accent)">3</div>
+          <div class="phase-title-group">
+            <div class="phase-title">Parcerias e B2B Leve</div>
+            <div class="phase-range">5.000+ usuários</div>
+          </div>
+          <span class="phase-cost" style="background:var(--accent-light);color:var(--accent)">Receita adicional</span>
+        </div>
+        <div class="phase-body" style="margin-top:16px">
+          <div class="phase-actions">
+            <div class="phase-action">
+              <span class="action-icon">📊</span>
+              <div class="action-text"><strong>Dados agregados anônimos para varejo</strong> — insights de comportamento de compra por região, categoria e sazonalidade. Nunca PII, sempre com consentimento. Varejistas pagam por esses dados.
+              <span class="action-metric">Receita recorrente</span></div>
+            </div>
+            <div class="phase-action">
+              <span class="action-icon">👨‍👩‍👧</span>
+              <div class="action-text"><strong>Plano Família — R$ 7,99/mês</strong> — até 4 membros, divisão automática de despesas. Ticket médio 60% maior, custo marginal proporcional mínimo.</div>
+            </div>
+            <div class="phase-action">
+              <span class="action-icon">🔌</span>
+              <div class="action-text"><strong>White-label / SDK de scan para terceiros</strong> — licenciar a tecnologia de leitura e categorização de NF-e para apps de cashback, bancos digitais e fintechs. Receita de licença mensal.
+              <span class="action-metric">Alto valor por contrato</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="callout" style="margin-top:20px; background:var(--accent-light); border-color:rgba(27,79,114,.3)">
+      <span class="callout-icon">💡</span>
+      <p style="color:#1B4F72"><strong>Benchmarking anônimo como retenção:</strong> "Famílias similares à sua gastam em média R$ 890/mês com alimentação — você está R$ 210 acima." Comparações anônimas com perfis semelhantes criam motivação externa e validam o valor do app semanalmente — sem custo adicional.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Documento gerado por <strong>Claude Sonnet</strong> · App Comprei (NF-e Smart) · Fevereiro 2026</p>
+  <p style="margin-top:6px; font-size:0.8rem;">v2.0 — Inclui estratégia de monetização, Liberdade de Sexta e plano de crescimento</p>
+</footer>
+
+</body>
+</html>

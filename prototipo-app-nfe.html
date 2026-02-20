@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Comprei — Protótipo v2.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#0a0a0a 100%);display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;overflow:hidden;}
+
+:root{
+  --bg:#FAFAF7;--surface:#fff;--primary:#4CAF7D;--primary-d:#3a9a6a;--primary-l:#E8F5EE;
+  --secondary:#F5A623;--secondary-l:#FEF5E7;--accent:#1B4F72;--accent-l:#EAF2F8;
+  --text:#1C1C1E;--text2:#6B7280;--border:#EBEBEB;--danger:#E74C3C;--danger-l:#FDEDEC;
+  --purple:#7C3AED;--purple-l:#F3E8FF;
+  --shadow-sm:0 1px 4px rgba(0,0,0,.07);--shadow-md:0 4px 20px rgba(0,0,0,.1);--shadow-lg:0 12px 40px rgba(0,0,0,.15);
+  --r:16px;--r-sm:10px;
+}
+
+/* ── OUTER WRAPPER ── */
+.outer{display:flex;align-items:flex-start;gap:32px;}
+.sidebar{width:200px;display:flex;flex-direction:column;gap:10px;padding-top:40px;}
+.sidebar-title{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;}
+.sidebar-btn{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;padding:10px 14px;color:rgba(255,255,255,.7);
+  font-family:'Sora',sans-serif;font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .2s;text-align:left;display:flex;align-items:center;gap:8px;
+}
+.sidebar-btn:hover{background:rgba(255,255,255,.12);color:#fff;}
+.sidebar-btn.active{background:rgba(76,175,125,.2);border-color:rgba(76,175,125,.4);color:#4CAF7D;}
+.sidebar-sep{height:1px;background:rgba(255,255,255,.08);margin:4px 0;}
+.version-tag{font-family:'Sora',sans-serif;font-size:10px;color:rgba(255,255,255,.25);text-align:center;margin-top:8px;}
+
+/* ── PHONE ── */
+.phone{
+  width:390px;height:844px;background:var(--bg);
+  border-radius:48px;
+  box-shadow:0 0 0 10px #1a1a1a,0 0 0 12px #2a2a2a,0 40px 100px rgba(0,0,0,.8);
+  position:relative;overflow:hidden;display:flex;flex-direction:column;flex-shrink:0;
+}
+
+/* Status bar */
+.status-bar{height:50px;background:var(--bg);display:flex;align-items:center;justify-content:space-between;padding:14px 28px 0;flex-shrink:0;z-index:50;transition:background .3s;}
+.status-time{font-family:'Sora',sans-serif;font-size:15px;font-weight:700;color:var(--text);}
+.status-icons{display:flex;gap:5px;align-items:center;font-size:12px;}
+
+/* Screen */
+.screen-wrap{flex:1;position:relative;overflow:hidden;}
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;opacity:0;transform:translateY(14px);pointer-events:none;transition:opacity .28s ease,transform .28s ease;background:var(--bg);}
+.screen::-webkit-scrollbar{display:none;}
+.screen.active{opacity:1;transform:translateY(0);pointer-events:all;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{height:82px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 16px 14px;flex-shrink:0;position:relative;z-index:100;box-shadow:0 -4px 20px rgba(0,0,0,.06);}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;transition:all .2s;padding-top:8px;}
+.nav-icon{font-size:21px;transition:transform .2s;}
+.nav-lbl{font-family:'Sora',sans-serif;font-size:10px;font-weight:600;color:var(--text2);letter-spacing:.02em;}
+.nav-item.active .nav-lbl{color:var(--primary);}
+.nav-item.active .nav-icon{transform:scale(1.15);}
+.nav-fab{flex:none;width:62px;height:62px;background:linear-gradient(135deg,#4CAF7D,#2e9d65);border-radius:50%;margin-top:-26px;box-shadow:0 4px 20px rgba(76,175,125,.55);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;}
+.nav-fab:hover{transform:scale(1.05);}
+.nav-fab::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(76,175,125,.3);animation:fabPulse 2s ease infinite;}
+@keyframes fabPulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.12);opacity:0;}}
+.nav-fab-icon{font-size:24px;}
+
+/* ────────────────────── SCREEN 1: DASHBOARD ────────────────────── */
+.dash-hdr{background:linear-gradient(155deg,#1B4F72 0%,#0d2b42 100%);padding:20px 24px 36px;position:relative;overflow:hidden;}
+.dash-hdr::before{content:'';position:absolute;top:-50px;right:-50px;width:220px;height:220px;background:radial-gradient(circle,rgba(76,175,125,.22) 0%,transparent 70%);border-radius:50%;}
+.dash-hdr::after{content:'';position:absolute;bottom:-60px;left:10%;width:180px;height:180px;background:radial-gradient(circle,rgba(245,166,35,.12) 0%,transparent 70%);border-radius:50%;}
+.dash-greeting{font-size:13px;color:rgba(255,255,255,.6);font-weight:500;}
+.dash-name{font-family:'Sora',sans-serif;font-size:21px;font-weight:800;color:#fff;margin-top:1px;letter-spacing:-.02em;}
+.dash-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(76,175,125,.2);border:1px solid rgba(76,175,125,.35);color:#7DFFB3;padding:3px 10px;border-radius:100px;font-size:10px;font-weight:700;font-family:'Sora',sans-serif;letter-spacing:.06em;margin-top:10px;}
+.dash-badge::before{content:'';width:5px;height:5px;background:#4CAF7D;border-radius:50%;}
+.dash-total-lbl{font-size:11px;color:rgba(255,255,255,.5);margin-top:14px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+.dash-total{font-family:'Sora',sans-serif;font-size:40px;font-weight:800;color:#fff;letter-spacing:-.04em;line-height:1;margin-top:3px;}
+.dash-total sup{font-size:18px;font-weight:600;opacity:.8;vertical-align:super;}
+.dash-chg{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:100px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;margin-top:8px;}
+.chg-up{background:rgba(231,76,60,.2);border:1px solid rgba(231,76,60,.3);color:#FF9A8B;}
+.chg-dn{background:rgba(76,175,125,.2);border:1px solid rgba(76,175,125,.3);color:#7DFFB3;}
+
+/* pro banner on dashboard */
+.pro-banner{margin:0 16px;margin-top:-16px;background:linear-gradient(135deg,var(--secondary),#e8920a);border-radius:var(--r);padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(245,166,35,.35);cursor:pointer;transition:transform .2s;}
+.pro-banner:hover{transform:translateY(-1px);}
+.pro-banner-icon{font-size:22px;flex-shrink:0;}
+.pro-banner-text{flex:1;}
+.pro-banner-title{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:#fff;}
+.pro-banner-sub{font-size:11px;color:rgba(255,255,255,.75);margin-top:1px;}
+.pro-banner-cta{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:#fff;background:rgba(255,255,255,.25);padding:4px 12px;border-radius:100px;white-space:nowrap;}
+
+.dash-body{padding:14px 16px 24px;}
+.sec-lbl{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+
+/* budget card */
+.budget-card{background:var(--surface);border-radius:var(--r);padding:18px 20px;box-shadow:var(--shadow-sm);margin-bottom:14px;border:1px solid var(--border);}
+.bgt-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.bgt-cat{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--text);}
+.bgt-val{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--text);}
+.bgt-bar-wrap{background:#F0F0ED;border-radius:100px;height:6px;margin-bottom:12px;overflow:hidden;}
+.bgt-bar{height:100%;border-radius:100px;transition:width 1s cubic-bezier(.25,.46,.45,.94);}
+.over-budget{color:var(--danger);}
+
+/* insight card */
+.insight-card{background:linear-gradient(135deg,#1B4F72,#0d2b42);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;display:flex;gap:12px;cursor:pointer;transition:transform .2s;}
+.insight-card:hover{transform:translateX(2px);}
+.insight-icon{width:38px;height:38px;background:rgba(255,255,255,.1);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.insight-lbl{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.08em;}
+.insight-txt{font-size:12px;color:#fff;line-height:1.5;margin-top:3px;font-weight:500;}
+.insight-txt b{color:#7DFFB3;}
+
+/* liberdade card */
+.liberdade-card{background:linear-gradient(135deg,#F5A623,#e8920a);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;display:flex;gap:12px;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(245,166,35,.3);}
+.liberdade-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,166,35,.4);}
+.liberdade-icon{font-size:32px;flex-shrink:0;}
+.liberdade-lbl{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.08em;}
+.liberdade-val{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em;line-height:1;margin-top:2px;}
+.liberdade-sub{font-size:11px;color:rgba(255,255,255,.8);margin-top:3px;line-height:1.4;}
+
+/* recent items */
+.recent-item{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:var(--r-sm);padding:13px 16px;margin-bottom:8px;box-shadow:var(--shadow-sm);cursor:pointer;transition:all .2s;border:1px solid var(--border);}
+.recent-item:hover{transform:translateX(2px);box-shadow:var(--shadow-md);}
+.recent-logo{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.recent-store{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
+.recent-date{font-size:11px;color:var(--text2);margin-top:1px;}
+.recent-val{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:var(--text);}
+.recent-arr{color:var(--text2);font-size:12px;}
+
+/* ────────────────────── SCREEN 2: SCAN ────────────────────── */
+.scan-screen{background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;min-height:100%;}
+.scan-bg{position:absolute;inset:0;background:radial-gradient(ellipse at center,#0a1628 0%,#000 70%);}
+.scan-title-area{position:absolute;top:20px;width:100%;text-align:center;z-index:10;padding:0 24px;}
+.scan-title{font-family:'Sora',sans-serif;font-size:19px;font-weight:700;color:#fff;}
+.scan-sub{font-size:12px;color:rgba(255,255,255,.45);margin-top:3px;}
+.scan-vf{position:relative;z-index:10;width:220px;height:220px;}
+.scan-frame{position:absolute;inset:0;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.03);}
+.scan-corner{position:absolute;width:28px;height:28px;border-color:var(--primary);border-style:solid;border-width:0;}
+.sc-tl{top:0;left:0;border-top-width:3px;border-left-width:3px;border-radius:8px 0 0 0;}
+.sc-tr{top:0;right:0;border-top-width:3px;border-right-width:3px;border-radius:0 8px 0 0;}
+.sc-bl{bottom:0;left:0;border-bottom-width:3px;border-left-width:3px;border-radius:0 0 0 8px;}
+.sc-br{bottom:0;right:0;border-bottom-width:3px;border-right-width:3px;border-radius:0 0 8px 0;}
+.scan-line{position:absolute;left:8px;right:8px;height:2px;background:linear-gradient(90deg,transparent,var(--primary),transparent);box-shadow:0 0 8px var(--primary);animation:scanMove 2s ease-in-out infinite;top:50%;}
+@keyframes scanMove{0%,100%{top:10%;opacity:1;}50%{top:88%;opacity:.8;}}
+.scan-qr-mock{position:absolute;inset:20px;display:grid;grid-template-columns:repeat(7,1fr);gap:3px;opacity:.12;}
+.qr-cell{background:var(--primary);border-radius:2px;}
+.scan-sim-btn{position:absolute;bottom:100px;z-index:10;}
+.scan-sim-btn button{background:rgba(76,175,125,.15);border:1px solid rgba(76,175,125,.4);color:var(--primary);padding:10px 24px;border-radius:100px;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.06em;transition:all .2s;}
+.scan-sim-btn button:hover{background:rgba(76,175,125,.25);}
+.scan-options{position:absolute;bottom:22px;width:100%;padding:0 22px;z-index:10;display:flex;gap:10px;}
+.scan-opt{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:var(--r-sm);padding:13px;display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer;transition:all .2s;backdrop-filter:blur(10px);}
+.scan-opt:hover{background:rgba(255,255,255,.13);}
+.scan-opt-icon{font-size:20px;}
+.scan-opt-lbl{font-family:'Sora',sans-serif;font-size:10px;font-weight:600;color:rgba(255,255,255,.65);}
+
+/* scan success */
+.scan-success{position:absolute;inset:0;background:rgba(0,0,0,.88);z-index:50;display:none;flex-direction:column;align-items:center;padding:24px;overflow-y:auto;}
+.scan-success.show{display:flex;}
+.scan-success::-webkit-scrollbar{display:none;}
+.suc-check{width:68px;height:68px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:16px 0 12px;animation:popIn .4s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+.suc-title{font-family:'Sora',sans-serif;font-size:21px;font-weight:800;color:#fff;margin-bottom:2px;}
+.suc-sub{font-size:12px;color:rgba(255,255,255,.55);margin-bottom:16px;}
+.suc-items{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:14px 18px;width:100%;margin-bottom:12px;}
+.suc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.suc-row:last-child{border-bottom:none;}
+.suc-iname{font-size:12px;color:rgba(255,255,255,.75);display:flex;align-items:center;gap:7px;}
+.suc-ival{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:#fff;}
+.suc-insight{background:linear-gradient(135deg,rgba(76,175,125,.2),rgba(76,175,125,.07));border:1px solid rgba(76,175,125,.3);border-radius:var(--r-sm);padding:12px 16px;width:100%;margin-bottom:12px;}
+.suc-ins-lbl{font-family:'Sora',sans-serif;font-size:9px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:3px;}
+.suc-ins-txt{font-size:12px;color:#fff;line-height:1.5;}
+.suc-ins-txt b{color:#7DFFB3;}
+.suc-cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.suc-cat{padding:4px 10px;border-radius:100px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;}
+.suc-btn{background:var(--primary);color:#fff;border:none;border-radius:var(--r-sm);padding:13px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer;width:100%;transition:all .2s;margin-bottom:6px;}
+.suc-btn:hover{background:var(--primary-d);}
+.suc-btn-sec{background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.12);border-radius:var(--r-sm);padding:11px;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;cursor:pointer;width:100%;transition:all .2s;}
+
+/* ────────────────────── SCREEN 3: HISTORY ────────────────────── */
+.hist-hdr{padding:20px 24px 8px;}
+.hist-title{font-family:'Sora',sans-serif;font-size:23px;font-weight:800;color:var(--text);letter-spacing:-.02em;}
+.hist-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.hist-search{margin:12px 16px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:10px 14px;display:flex;align-items:center;gap:8px;}
+.hist-search-icon{font-size:14px;color:var(--text2);}
+.hist-search-input{flex:1;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:none;border:none;outline:none;}
+.hist-search-input::placeholder{color:var(--text2);}
+.filter-row{display:flex;gap:7px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;}
+.filter-row::-webkit-scrollbar{display:none;}
+.fchip{flex-shrink:0;padding:5px 14px;border-radius:100px;font-family:'Sora',sans-serif;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap;}
+.fchip.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+.month-lbl{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;padding:12px 20px 6px;border-top:1px solid var(--border);}
+.hcard{background:var(--surface);border-radius:var(--r);margin:0 16px 8px;overflow:hidden;box-shadow:var(--shadow-sm);cursor:pointer;transition:all .2s;border:1px solid var(--border);}
+.hcard:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.hcard-hdr{padding:13px 16px;display:flex;align-items:center;gap:11px;}
+.hcard-logo{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.hcard-store{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
+.hcard-date{font-size:11px;color:var(--text2);}
+.hcard-amt{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:var(--text);margin-left:auto;}
+.hcard-tags{padding:0 16px 12px;display:flex;gap:5px;flex-wrap:wrap;}
+.htag{padding:3px 9px;border-radius:100px;font-family:'Sora',sans-serif;font-size:9px;font-weight:700;letter-spacing:.03em;}
+
+/* ────────────────────── SCREEN 4: REPORTS ────────────────────── */
+.rep-hdr{padding:20px 24px 8px;}
+.rep-title{font-family:'Sora',sans-serif;font-size:23px;font-weight:800;color:var(--text);letter-spacing:-.02em;}
+.rep-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.period-row{display:flex;gap:7px;padding:10px 16px;overflow-x:auto;scrollbar-width:none;}
+.period-row::-webkit-scrollbar{display:none;}
+.pbtn{flex-shrink:0;padding:6px 16px;border-radius:100px;font-family:'Sora',sans-serif;font-size:11px;font-weight:700;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;transition:all .2s;}
+.pbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.rep-body{padding:0 16px 24px;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.stat-card{background:var(--surface);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow-sm);border:1px solid var(--border);}
+.stat-lbl{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;}
+.stat-val{font-family:'Sora',sans-serif;font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.02em;line-height:1;}
+.stat-unit{font-size:11px;color:var(--text2);margin-top:3px;}
+.stat-chg-good{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--primary);margin-top:3px;}
+.stat-chg-bad{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--danger);margin-top:3px;}
+.chart-card{background:var(--surface);border-radius:var(--r);padding:18px;box-shadow:var(--shadow-sm);margin-bottom:12px;border:1px solid var(--border);}
+.chart-title{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;}
+.donut-wrap{display:flex;gap:16px;align-items:center;}
+.legend{flex:1;}
+.legend-row{display:flex;align-items:center;gap:7px;padding:4px 0;}
+.legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.legend-name{font-size:11px;color:var(--text);flex:1;font-weight:500;}
+.legend-pct{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--text);}
+.bar-row{margin-bottom:10px;}
+.bar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.bar-name{font-size:12px;font-weight:500;color:var(--text);display:flex;align-items:center;gap:5px;}
+.bar-val{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--text);}
+.bar-track{background:#F0F0ED;border-radius:100px;height:7px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:100px;transition:width 1s cubic-bezier(.25,.46,.45,.94);}
+
+/* inflation mini table */
+.inf-table{width:100%;border-collapse:collapse;}
+.inf-table th{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;text-align:left;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.inf-table td{font-size:12px;padding:8px 0;border-bottom:1px solid #F5F5F3;color:var(--text);}
+.inf-table td:last-child{text-align:right;font-family:'Sora',sans-serif;font-weight:700;}
+.inf-up{color:var(--danger);}
+.inf-dn{color:var(--primary);}
+
+/* ────────────────────── SCREEN 5: PROFILE ────────────────────── */
+.prof-hdr{background:linear-gradient(155deg,var(--primary),#2e9d65);padding:30px 24px 22px;display:flex;align-items:center;gap:16px;}
+.prof-avatar{width:60px;height:60px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid rgba(255,255,255,.4);}
+.prof-name{font-family:'Sora',sans-serif;font-size:19px;font-weight:800;color:#fff;letter-spacing:-.02em;}
+.prof-email{font-size:12px;color:rgba(255,255,255,.65);margin-top:1px;}
+.prof-plan-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;padding:3px 10px;border-radius:100px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;margin-top:6px;}
+.prof-stats{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface);border-radius:var(--r);margin:14px 16px;box-shadow:var(--shadow-md);overflow:hidden;border:1px solid var(--border);}
+.pstat{padding:14px 10px;text-align:center;border-right:1px solid var(--border);}
+.pstat:last-child{border-right:none;}
+.pstat-val{font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--text);}
+.pstat-lbl{font-size:10px;color:var(--text2);margin-top:2px;font-weight:500;}
+.prof-sec{padding:0 16px;margin-bottom:14px;}
+.prof-sec-title{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:7px;padding-left:2px;}
+.badge-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.badge-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;display:flex;gap:10px;align-items:flex-start;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm);}
+.badge-card:hover{border-color:var(--primary);transform:translateY(-1px);}
+.badge-card.locked{opacity:.45;}
+.badge-icon{font-size:22px;}
+.badge-name{font-family:'Sora',sans-serif;font-size:11px;font-weight:700;color:var(--text);}
+.badge-desc{font-size:10px;color:var(--text2);margin-top:1px;}
+.prof-item{display:flex;align-items:center;gap:12px;background:var(--surface);border-radius:var(--r-sm);padding:13px 16px;margin-bottom:6px;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm);border:1px solid var(--border);}
+.prof-item:hover{transform:translateX(2px);}
+.prof-item-icon{font-size:17px;}
+.prof-item-txt{flex:1;font-size:13px;font-weight:500;color:var(--text);}
+.prof-item-arr{color:var(--text2);font-size:14px;}
+.toggle{width:40px;height:22px;background:var(--primary);border-radius:100px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.toggle::after{content:'';position:absolute;right:3px;top:3px;width:16px;height:16px;background:#fff;border-radius:50%;transition:transform .2s;}
+.toggle.off{background:var(--border);}
+.toggle.off::after{transform:translateX(-18px);}
+
+/* ────────────────────── SCREEN 6: PLANOS ────────────────────── */
+.plans-screen{background:var(--bg);}
+.plans-hdr{background:linear-gradient(155deg,#0F2027,#1B4F72);padding:28px 24px 32px;text-align:center;position:relative;overflow:hidden;}
+.plans-hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(76,175,125,.2) 0%,transparent 70%);border-radius:50%;}
+.plans-close{position:absolute;top:20px;left:20px;width:32px;height:32px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:rgba(255,255,255,.7);transition:all .2s;}
+.plans-close:hover{background:rgba(255,255,255,.2);color:#fff;}
+.plans-hdr-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:6px;}
+.plans-hdr-sub{font-size:12px;color:rgba(255,255,255,.55);line-height:1.5;}
+.plans-hdr-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(245,166,35,.2);border:1px solid rgba(245,166,35,.3);color:#FFD580;padding:4px 12px;border-radius:100px;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;margin-top:10px;}
+.plan-toggle-row{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px 24px 0;}
+.plan-toggle-lbl{font-family:'Sora',sans-serif;font-size:12px;font-weight:600;color:var(--text2);}
+.plan-toggle-lbl.active-lbl{color:var(--text);}
+.plan-toggle-pill{width:44px;height:24px;background:var(--primary);border-radius:100px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.plan-toggle-pill::after{content:'';position:absolute;right:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s;}
+.plan-toggle-pill.monthly::after{transform:translateX(-20px);}
+.plan-save{background:var(--primary-l);color:var(--primary);font-family:'Sora',sans-serif;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;}
+.plan-cards{padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
+.plan-card-ui{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:20px;transition:all .2s;cursor:pointer;position:relative;}
+.plan-card-ui:hover{border-color:var(--primary);box-shadow:var(--shadow-md);}
+.plan-card-ui.featured{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-l);}
+.plan-popular{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;font-family:'Sora',sans-serif;font-size:10px;font-weight:700;padding:3px 12px;border-radius:100px;white-space:nowrap;letter-spacing:.04em;}
+.plan-card-name{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.plan-card-price{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:var(--text);letter-spacing:-.03em;line-height:1;}
+.plan-card-price sup{font-size:14px;font-weight:600;vertical-align:super;}
+.plan-card-price sub{font-size:13px;font-weight:500;color:var(--text2);}
+.plan-card-desc{font-size:11px;color:var(--text2);margin-top:5px;margin-bottom:14px;line-height:1.5;}
+.plan-feats{display:flex;flex-direction:column;gap:6px;}
+.plan-feat{display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--text);line-height:1.4;}
+.feat-ok{color:var(--primary);flex-shrink:0;margin-top:1px;}
+.feat-no-icon{color:var(--border);flex-shrink:0;margin-top:1px;}
+.feat-star-icon{color:var(--secondary);flex-shrink:0;margin-top:1px;}
+.plan-cta{margin:0 16px 16px;background:var(--primary);color:#fff;border:none;border-radius:var(--r-sm);padding:14px;font-family:'Sora',sans-serif;font-size:14px;font-weight:700;cursor:pointer;width:calc(100% - 32px);transition:all .2s;box-shadow:0 4px 14px rgba(76,175,125,.4);}
+.plan-cta:hover{background:var(--primary-d);transform:translateY(-1px);}
+.plan-guarantee{text-align:center;padding:0 24px 24px;font-size:11px;color:var(--text2);line-height:1.5;}
+.plan-guarantee b{color:var(--text);}
+
+/* ────────────────────── SCREEN 7: LIBERDADE ────────────────────── */
+.lib-screen{background:#000;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden;}
+.lib-bg{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 30%,rgba(245,166,35,.2) 0%,transparent 60%),radial-gradient(ellipse at 70% 70%,rgba(76,175,125,.15) 0%,transparent 60%),#0a0a0a;}
+.lib-close{position:absolute;top:20px;left:20px;width:32px;height:32px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:rgba(255,255,255,.7);z-index:10;transition:all .2s;}
+.lib-close:hover{background:rgba(255,255,255,.2);}
+.lib-content{position:relative;z-index:5;text-align:center;width:100%;}
+.lib-emoji{font-size:72px;display:block;margin-bottom:16px;animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.lib-title-lbl{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:rgba(245,166,35,.7);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px;}
+.lib-amount{font-family:'Sora',sans-serif;font-size:56px;font-weight:800;color:#fff;letter-spacing:-.04em;line-height:1;}
+.lib-amount span{color:#F5A623;}
+.lib-msg{font-size:15px;color:rgba(255,255,255,.75);line-height:1.6;margin-top:16px;max-width:280px;margin-left:auto;margin-right:auto;}
+.lib-breakdown{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:16px;margin-top:20px;width:100%;}
+.lib-break-title{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.lib-break-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.lib-break-row:last-child{border-bottom:none;}
+.lib-break-cat{font-size:12px;color:rgba(255,255,255,.65);display:flex;align-items:center;gap:6px;}
+.lib-break-val{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:#fff;}
+.lib-suggestions{margin-top:16px;width:100%;}
+.lib-sug-title{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;text-align:left;}
+.lib-sug-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.lib-sug{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--r-sm);padding:12px;text-align:center;}
+.lib-sug-icon{font-size:22px;display:block;margin-bottom:4px;}
+.lib-sug-txt{font-size:10px;color:rgba(255,255,255,.65);line-height:1.4;}
+.lib-sug-txt b{color:#fff;}
+.lib-share{background:linear-gradient(135deg,var(--secondary),#e8920a);color:#fff;border:none;border-radius:var(--r-sm);padding:14px;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;cursor:pointer;width:100%;margin-top:16px;transition:all .2s;}
+.lib-share:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(245,166,35,.4);}
+
+/* ────────────────────── ANIMATIONS ────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.a1{animation:fadeUp .35s ease .04s both}
+.a2{animation:fadeUp .35s ease .1s both}
+.a3{animation:fadeUp .35s ease .18s both}
+.a4{animation:fadeUp .35s ease .26s both}
+.a5{animation:fadeUp .35s ease .34s both}
+
+/* toast */
+.toast{position:absolute;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);background:#1C1C1E;color:#fff;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;padding:10px 18px;border-radius:100px;white-space:nowrap;z-index:200;opacity:0;transition:all .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ────────────────────── DETAIL DRAWER ────────────────────── */
+.drawer-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:300;
+  opacity:0;pointer-events:none;transition:opacity .28s ease;
+  backdrop-filter:blur(3px);
+}
+.drawer-overlay.open{opacity:1;pointer-events:all;}
+
+.drawer{
+  position:absolute;bottom:0;left:0;right:0;
+  background:var(--surface);border-radius:24px 24px 0 0;
+  z-index:301;transform:translateY(100%);
+  transition:transform .32s cubic-bezier(.32,0,.15,1);
+  max-height:88%;display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.drawer.open{transform:translateY(0);}
+
+.drawer-handle{
+  width:36px;height:4px;background:var(--border);border-radius:100px;
+  margin:12px auto 0;flex-shrink:0;cursor:pointer;
+}
+
+.drawer-header{
+  padding:14px 20px 12px;display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.drawer-store-logo{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.drawer-store-name{font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:var(--text);}
+.drawer-store-meta{font-size:11px;color:var(--text2);margin-top:2px;}
+.drawer-total{margin-left:auto;text-align:right;}
+.drawer-total-val{font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:var(--text);}
+.drawer-total-lbl{font-size:10px;color:var(--text2);margin-top:1px;}
+.drawer-close{
+  width:28px;height:28px;background:var(--border);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:12px;color:var(--text2);transition:all .2s;flex-shrink:0;
+}
+.drawer-close:hover{background:var(--danger-l);color:var(--danger);}
+
+.drawer-body{overflow-y:auto;flex:1;scrollbar-width:none;padding-bottom:24px;}
+.drawer-body::-webkit-scrollbar{display:none;}
+
+/* summary pills */
+.drawer-pills{
+  display:flex;gap:8px;padding:12px 20px;overflow-x:auto;scrollbar-width:none;
+  border-bottom:1px solid var(--border);
+}
+.drawer-pills::-webkit-scrollbar{display:none;}
+.dpill{
+  flex-shrink:0;display:flex;flex-direction:column;align-items:center;
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);
+  padding:10px 14px;min-width:72px;
+}
+.dpill-val{font-family:'Sora',sans-serif;font-size:14px;font-weight:800;color:var(--text);}
+.dpill-lbl{font-size:10px;color:var(--text2);margin-top:2px;text-align:center;}
+
+/* category summary */
+.drawer-cats{padding:14px 20px 0;}
+.drawer-sec-lbl{font-family:'Sora',sans-serif;font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.dcat-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.dcat-icon{font-size:15px;width:22px;text-align:center;flex-shrink:0;}
+.dcat-name{font-size:12px;font-weight:500;color:var(--text);flex:1;}
+.dcat-bar-wrap{width:70px;background:#F0F0ED;border-radius:100px;height:5px;overflow:hidden;}
+.dcat-bar{height:100%;border-radius:100px;}
+.dcat-val{font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--text);min-width:52px;text-align:right;}
+
+/* item list */
+.drawer-items{padding:14px 20px 0;}
+.item-row{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid #F5F5F3;
+}
+.item-row:last-child{border-bottom:none;}
+.item-emoji{font-size:17px;width:26px;text-align:center;flex-shrink:0;}
+.item-info{flex:1;}
+.item-name{font-size:12px;font-weight:500;color:var(--text);line-height:1.3;}
+.item-qty{font-size:10px;color:var(--text2);margin-top:1px;}
+.item-cat{display:inline-flex;align-items:center;padding:1px 7px;border-radius:100px;font-family:'Sora',sans-serif;font-size:9px;font-weight:700;margin-top:3px;}
+.item-price{font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:var(--text);flex-shrink:0;}
+.item-unit{font-size:10px;color:var(--text2);text-align:right;}
+
+/* insight strip */
+.drawer-insight{
+  margin:14px 20px 0;
+  background:linear-gradient(135deg,#1B4F72,#0d2b42);
+  border-radius:var(--r);padding:12px 16px;display:flex;gap:10px;
+}
+.di-icon{font-size:16px;flex-shrink:0;}
+.di-txt{font-size:11px;color:rgba(255,255,255,.8);line-height:1.5;}
+.di-txt b{color:#7DFFB3;}
+
+/* action buttons */
+.drawer-actions{display:flex;gap:8px;padding:14px 20px 0;}
+.daction{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;
+  background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);
+  padding:12px 8px;cursor:pointer;transition:all .2s;
+}
+.daction:hover{border-color:var(--primary);background:var(--primary-l);}
+.daction-icon{font-size:18px;}
+.daction-lbl{font-family:'Sora',sans-serif;font-size:10px;font-weight:600;color:var(--text2);}
+</style>
+</head>
+<body>
+
+<div class="outer">
+
+  <!-- ── SIDEBAR ── -->
+  <div class="sidebar">
+    <div class="sidebar-title">Telas</div>
+    <button class="sidebar-btn active" id="sb-home" onclick="goTo('home')">🏠 Dashboard</button>
+    <button class="sidebar-btn" id="sb-scan" onclick="goTo('scan')">📷 Scan NF-e</button>
+    <button class="sidebar-btn" id="sb-history" onclick="goTo('history')">📋 Histórico</button>
+    <button class="sidebar-btn" id="sb-reports" onclick="goTo('reports')">📊 Relatórios</button>
+    <button class="sidebar-btn" id="sb-profile" onclick="goTo('profile')">👤 Perfil</button>
+    <div class="sidebar-sep"></div>
+    <div class="sidebar-title">Features Pro</div>
+    <button class="sidebar-btn" id="sb-plans" onclick="goTo('plans')">💰 Planos</button>
+    <button class="sidebar-btn" id="sb-liberdade" onclick="goTo('liberdade')">🍺 Liberdade de Sexta</button>
+    <div class="sidebar-sep"></div>
+    <div class="version-tag">Comprei App · v2.0 · Protótipo</div>
+  </div>
+
+  <!-- ── PHONE ── -->
+  <div class="phone" id="phone">
+
+    <!-- STATUS BAR -->
+    <div class="status-bar" id="statusBar">
+      <span class="status-time" id="statusTime">9:41</span>
+      <div class="status-icons">📶 🔋</div>
+    </div>
+
+    <div class="screen-wrap">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="screen active" id="s-home">
+        <div class="dash-hdr">
+          <div class="dash-greeting">Bom dia, Carlos 👋</div>
+          <div class="dash-name">Comprei</div>
+          <div class="dash-badge">🔥 12 dias de streak</div>
+          <div class="dash-total-lbl">Gasto em Fevereiro</div>
+          <div class="dash-total"><sup>R$</sup><span id="counterTotal">0</span></div>
+          <span class="dash-chg chg-up">↑ 12% vs Janeiro</span>
+        </div>
+
+        <!-- Pro upgrade banner -->
+        <div class="pro-banner a1" onclick="goTo('plans')">
+          <span class="pro-banner-icon">⭐</span>
+          <div class="pro-banner-text">
+            <div class="pro-banner-title">Liberdade de Sexta está esperando!</div>
+            <div class="pro-banner-sub">Assine o Pro por R$4,99/mês e receba todo Friday às 17h</div>
+          </div>
+          <span class="pro-banner-cta">Ver planos</span>
+        </div>
+
+        <div class="dash-body">
+          <!-- Budget card -->
+          <div class="budget-card a2">
+            <div class="sec-lbl" style="margin-bottom:12px">Orçamento do Mês</div>
+
+            <div class="bgt-row">
+              <div class="bgt-cat">🥩 <span>Alimentação</span></div>
+              <div class="bgt-val">R$1.240 / R$1.500</div>
+            </div>
+            <div class="bgt-bar-wrap"><div class="bgt-bar" style="width:83%;background:var(--primary)"></div></div>
+
+            <div class="bgt-row">
+              <div class="bgt-cat">🧴 <span class="over-budget">Higiene & Beleza</span></div>
+              <div class="bgt-val over-budget">R$380 / R$300 ⚠️</div>
+            </div>
+            <div class="bgt-bar-wrap"><div class="bgt-bar" style="width:100%;background:var(--danger)"></div></div>
+
+            <div class="bgt-row">
+              <div class="bgt-cat">🧹 <span>Limpeza</span></div>
+              <div class="bgt-val">R$210 / R$400</div>
+            </div>
+            <div class="bgt-bar-wrap"><div class="bgt-bar" style="width:52%;background:var(--secondary)"></div></div>
+
+            <div class="bgt-row">
+              <div class="bgt-cat">🍺 <span>Bebidas</span></div>
+              <div class="bgt-val">R$195 / R$250</div>
+            </div>
+            <div class="bgt-bar-wrap" style="margin-bottom:0"><div class="bgt-bar" style="width:78%;background:var(--accent)"></div></div>
+          </div>
+
+          <!-- Insight card -->
+          <div class="insight-card a3">
+            <div class="insight-icon">💡</div>
+            <div>
+              <div class="insight-lbl">Insight da Semana</div>
+              <div class="insight-txt">No <b>Atacadão</b>, o frango está <b>R$4,20/kg</b> mais barato do que onde você comprou ontem.</div>
+            </div>
+          </div>
+
+          <!-- Liberdade teaser -->
+          <div class="liberdade-card a3" onclick="goTo('liberdade')">
+            <span class="liberdade-icon">🍺</span>
+            <div>
+              <div class="liberdade-lbl">Liberdade de Sexta</div>
+              <div class="liberdade-val">R$ 134,00</div>
+              <div class="liberdade-sub">Essa semana você pode gastar sem culpa!</div>
+            </div>
+          </div>
+
+          <!-- Recentes -->
+          <div class="sec-lbl a4">Compras Recentes</div>
+
+          <div class="recent-item a4" onclick="openDrawer('pao-acucar-fev17')">
+            <div class="recent-logo" style="background:#FEF5E7">🛒</div>
+            <div style="flex:1">
+              <div class="recent-store">Pão de Açúcar</div>
+              <div class="recent-date">Hoje, 08:32 · 18 itens</div>
+            </div>
+            <div class="recent-val">R$312,80</div>
+            <div class="recent-arr">›</div>
+          </div>
+
+          <div class="recent-item a4" onclick="openDrawer('atacadao-fev14')">
+            <div class="recent-logo" style="background:#E8F5EE">🏭</div>
+            <div style="flex:1">
+              <div class="recent-store">Atacadão</div>
+              <div class="recent-date">14 fev · 32 itens</div>
+            </div>
+            <div class="recent-val">R$847,40</div>
+            <div class="recent-arr">›</div>
+          </div>
+
+          <div class="recent-item a5" onclick="openDrawer('farmacia-fev12')">
+            <div class="recent-logo" style="background:#FDEDEC">💊</div>
+            <div style="flex:1">
+              <div class="recent-store">Farmácia São Paulo</div>
+              <div class="recent-date">12 fev · 4 itens</div>
+            </div>
+            <div class="recent-val">R$89,90</div>
+            <div class="recent-arr">›</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SCAN ══ -->
+      <div class="screen" id="s-scan">
+        <div class="scan-screen">
+          <div class="scan-bg"></div>
+          <div class="scan-title-area">
+            <div class="scan-title">Escanear Nota Fiscal</div>
+            <div class="scan-sub">Aponte para o QR Code da NF-e</div>
+          </div>
+          <div class="scan-vf">
+            <div class="scan-frame"><div class="scan-qr-mock" id="mockQr"></div></div>
+            <div class="scan-corner sc-tl"></div>
+            <div class="scan-corner sc-tr"></div>
+            <div class="scan-corner sc-bl"></div>
+            <div class="scan-corner sc-br"></div>
+            <div class="scan-line"></div>
+          </div>
+          <div class="scan-sim-btn">
+            <button onclick="triggerScan()">▶ Simular Leitura</button>
+          </div>
+          <div class="scan-options">
+            <div class="scan-opt" onclick="showToast('🖼️ Galeria aberta')"><span class="scan-opt-icon">🖼️</span><span class="scan-opt-lbl">Da Galeria</span></div>
+            <div class="scan-opt" onclick="showToast('✍️ Entrada manual')"><span class="scan-opt-icon">✍️</span><span class="scan-opt-lbl">Manual</span></div>
+            <div class="scan-opt" onclick="showToast('💡 Flash ativado')"><span class="scan-opt-icon">💡</span><span class="scan-opt-lbl">Flash</span></div>
+          </div>
+          <!-- Success overlay -->
+          <div class="scan-success" id="scanSuccess">
+            <div class="suc-check">✅</div>
+            <div class="suc-title">Nota Registrada!</div>
+            <div class="suc-sub">Pão de Açúcar · Hoje, 08:32 · 18 itens</div>
+            <div class="suc-items">
+              <div class="suc-row"><span class="suc-iname">🥩 Frango Kg (2x)</span><span class="suc-ival">R$29,80</span></div>
+              <div class="suc-row"><span class="suc-iname">🥛 Leite Integral (4x)</span><span class="suc-ival">R$22,40</span></div>
+              <div class="suc-row"><span class="suc-iname">🧴 Shampoo Seda</span><span class="suc-ival">R$18,90</span></div>
+              <div class="suc-row"><span class="suc-iname">🍿 Batata Ruffles (2x)</span><span class="suc-ival">R$14,60</span></div>
+              <div class="suc-row"><span class="suc-iname">+ 13 outros itens</span><span class="suc-ival">R$226,10</span></div>
+            </div>
+            <div class="suc-cats">
+              <span class="suc-cat" style="background:#E8F5EE;color:#2e7d51">🥩 Alimentação</span>
+              <span class="suc-cat" style="background:#FEF5E7;color:#b07418">🧴 Higiene</span>
+              <span class="suc-cat" style="background:#F3E8FF;color:#6d28d9">🍿 Snacks</span>
+            </div>
+            <div class="suc-insight">
+              <div class="suc-ins-lbl">💡 Insight Automático</div>
+              <div class="suc-ins-txt">Higiene e beleza ultrapassou o orçamento em <b>R$80</b> esse mês. Considere ajustar o limite para o próximo mês.</div>
+            </div>
+            <button class="suc-btn" onclick="closeScan()">✓ Ver Dashboard</button>
+            <button class="suc-btn-sec" onclick="showToast('📤 Compartilhado!')">Compartilhar nota</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ HISTORY ══ -->
+      <div class="screen" id="s-history">
+        <div class="hist-hdr">
+          <div class="hist-title">Histórico</div>
+          <div class="hist-sub">24 compras em 2026</div>
+        </div>
+        <div class="hist-search">
+          <span class="hist-search-icon">🔍</span>
+          <input class="hist-search-input" placeholder="Buscar por loja ou produto..." oninput="filterHistory(this.value)">
+        </div>
+        <div class="filter-row">
+          <div class="fchip active" onclick="setFilter(this,'Todos')">Todos</div>
+          <div class="fchip" onclick="setFilter(this,'Supermercado')">🛒 Super</div>
+          <div class="fchip" onclick="setFilter(this,'Atacado')">🏭 Atacado</div>
+          <div class="fchip" onclick="setFilter(this,'Farmácia')">💊 Farmácia</div>
+          <div class="fchip" onclick="setFilter(this,'Padaria')">🥖 Padaria</div>
+        </div>
+
+        <div id="hist-list">
+          <div class="month-lbl">Fevereiro 2026 · R$2.847,50</div>
+          <div class="hcard a1" onclick="openDrawer('pao-acucar-fev17')">
+            <div class="hcard-hdr">
+              <div class="hcard-logo" style="background:#FEF5E7">🛒</div>
+              <div><div class="hcard-store">Pão de Açúcar</div><div class="hcard-date">17 fev · 08:32 · 18 itens</div></div>
+              <div class="hcard-amt">R$312,80</div>
+            </div>
+            <div class="hcard-tags">
+              <span class="htag" style="background:#E8F5EE;color:#2e7d51">🥩 Alimentação</span>
+              <span class="htag" style="background:#FEF5E7;color:#b07418">🧴 Higiene</span>
+              <span class="htag" style="background:#F3E8FF;color:#6d28d9">🍿 Snacks</span>
+            </div>
+          </div>
+          <div class="hcard a2" onclick="openDrawer('atacadao-fev14')">
+            <div class="hcard-hdr">
+              <div class="hcard-logo" style="background:#E8F5EE">🏭</div>
+              <div><div class="hcard-store">Atacadão</div><div class="hcard-date">14 fev · 10:15 · 32 itens</div></div>
+              <div class="hcard-amt">R$847,40</div>
+            </div>
+            <div class="hcard-tags">
+              <span class="htag" style="background:#E8F5EE;color:#2e7d51">🥩 Alimentação</span>
+              <span class="htag" style="background:#EAF2F8;color:#1B4F72">🧹 Limpeza</span>
+            </div>
+          </div>
+          <div class="hcard a3" onclick="openDrawer('farmacia-fev12')">
+            <div class="hcard-hdr">
+              <div class="hcard-logo" style="background:#FDEDEC">💊</div>
+              <div><div class="hcard-store">Farmácia São Paulo</div><div class="hcard-date">12 fev · 14:20 · 4 itens</div></div>
+              <div class="hcard-amt">R$89,90</div>
+            </div>
+            <div class="hcard-tags">
+              <span class="htag" style="background:#FDEDEC;color:#c0392b">💊 Saúde</span>
+              <span class="htag" style="background:#FEF5E7;color:#b07418">🧴 Higiene</span>
+            </div>
+          </div>
+          <div class="hcard a4" onclick="openDrawer('padaria-fev10')">
+            <div class="hcard-hdr">
+              <div class="hcard-logo" style="background:#FEF5E7">🥖</div>
+              <div><div class="hcard-store">Padaria Estrela</div><div class="hcard-date">10 fev · 07:45 · 5 itens</div></div>
+              <div class="hcard-amt">R$42,80</div>
+            </div>
+            <div class="hcard-tags">
+              <span class="htag" style="background:#FEF5E7;color:#b07418">🥖 Padaria</span>
+            </div>
+          </div>
+          <div class="month-lbl">Janeiro 2026 · R$2.540,20</div>
+          <div class="hcard a5" onclick="openDrawer('atacadao-jan28')">
+            <div class="hcard-hdr">
+              <div class="hcard-logo" style="background:#E8F5EE">🏭</div>
+              <div><div class="hcard-store">Atacadão</div><div class="hcard-date">28 jan · 09:00 · 41 itens</div></div>
+              <div class="hcard-amt">R$1.124,60</div>
+            </div>
+            <div class="hcard-tags">
+              <span class="htag" style="background:#E8F5EE;color:#2e7d51">🥩 Alimentação</span>
+              <span class="htag" style="background:#EAF2F8;color:#1B4F72">🧹 Limpeza</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ REPORTS ══ -->
+      <div class="screen" id="s-reports">
+        <div class="rep-hdr">
+          <div class="rep-title">Relatórios</div>
+          <div class="rep-sub">Análise inteligente dos seus gastos</div>
+        </div>
+        <div class="period-row">
+          <button class="pbtn" onclick="setPeriod(this)">Jan</button>
+          <button class="pbtn active" onclick="setPeriod(this)">Fev</button>
+          <button class="pbtn" onclick="setPeriod(this)">Mar</button>
+          <button class="pbtn" onclick="setPeriod(this)">3 meses</button>
+          <button class="pbtn" onclick="setPeriod(this)">6 meses</button>
+          <button class="pbtn" onclick="setPeriod(this)">2026</button>
+        </div>
+        <div class="rep-body">
+          <div class="stats-row a1">
+            <div class="stat-card">
+              <div class="stat-lbl">Total Gasto</div>
+              <div class="stat-val">R$2.847</div>
+              <div class="stat-unit">Fevereiro 2026</div>
+              <div class="stat-chg-bad">↑ 12% vs jan</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-lbl">Ticket Médio</div>
+              <div class="stat-val">R$118</div>
+              <div class="stat-unit">por compra</div>
+              <div class="stat-chg-good">↓ 5% vs jan</div>
+            </div>
+          </div>
+          <div class="stats-row a2">
+            <div class="stat-card">
+              <div class="stat-lbl">Compras</div>
+              <div class="stat-val">24</div>
+              <div class="stat-unit">este mês</div>
+              <div class="stat-chg-bad">↑ 3 vs jan</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-lbl">Economia</div>
+              <div class="stat-val">R$312</div>
+              <div class="stat-unit">comparando lojas</div>
+              <div class="stat-chg-good">↑ ótimo!</div>
+            </div>
+          </div>
+
+          <!-- Donut -->
+          <div class="chart-card a3">
+            <div class="chart-title">Gastos por Categoria</div>
+            <div class="donut-wrap">
+              <svg width="96" height="96" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#4CAF7D" stroke-width="16" stroke-dasharray="103 240" stroke-dashoffset="0" transform="rotate(-90 50 50)"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#F5A623" stroke-width="16" stroke-dasharray="31 240" stroke-dashoffset="-103" transform="rotate(-90 50 50)"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#1B4F72" stroke-width="16" stroke-dasharray="17 240" stroke-dashoffset="-134" transform="rotate(-90 50 50)"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#7C3AED" stroke-width="16" stroke-dasharray="17 240" stroke-dashoffset="-151" transform="rotate(-90 50 50)"/>
+                <circle cx="50" cy="50" r="38" fill="none" stroke="#E5E7EB" stroke-width="16" stroke-dasharray="72 240" stroke-dashoffset="-168" transform="rotate(-90 50 50)"/>
+                <text x="50" y="47" text-anchor="middle" font-family="Sora" font-weight="800" font-size="12" fill="#1C1C1E">2.8k</text>
+                <text x="50" y="59" text-anchor="middle" font-family="DM Sans" font-size="8" fill="#6B7280">fevereiro</text>
+              </svg>
+              <div class="legend">
+                <div class="legend-row"><div class="legend-dot" style="background:#4CAF7D"></div><span class="legend-name">Alimentação</span><span class="legend-pct">43%</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:#F5A623"></div><span class="legend-name">Higiene</span><span class="legend-pct">13%</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:#1B4F72"></div><span class="legend-name">Limpeza</span><span class="legend-pct">7%</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:#7C3AED"></div><span class="legend-name">Bebidas</span><span class="legend-pct">7%</span></div>
+                <div class="legend-row"><div class="legend-dot" style="background:#E5E7EB"></div><span class="legend-name">Outros</span><span class="legend-pct">30%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bar por loja -->
+          <div class="chart-card a4">
+            <div class="chart-title">Por Estabelecimento</div>
+            <div class="bar-row"><div class="bar-top"><span class="bar-name">🏭 Atacadão</span><span class="bar-val">R$847</span></div><div class="bar-track"><div class="bar-fill" style="width:100%;background:#4CAF7D"></div></div></div>
+            <div class="bar-row"><div class="bar-top"><span class="bar-name">🛒 Pão de Açúcar</span><span class="bar-val">R$626</span></div><div class="bar-track"><div class="bar-fill" style="width:74%;background:#4CAF7D"></div></div></div>
+            <div class="bar-row"><div class="bar-top"><span class="bar-name">💊 Farmácias</span><span class="bar-val">R$312</span></div><div class="bar-track"><div class="bar-fill" style="width:37%;background:#F5A623"></div></div></div>
+            <div class="bar-row" style="margin-bottom:0"><div class="bar-top"><span class="bar-name">🥖 Padarias</span><span class="bar-val">R$198</span></div><div class="bar-track"><div class="bar-fill" style="width:23%;background:#1B4F72"></div></div></div>
+          </div>
+
+          <!-- Inflation -->
+          <div class="chart-card a5">
+            <div class="chart-title">📈 Inflação Pessoal — Top Produtos</div>
+            <table class="inf-table">
+              <thead><tr><th>Produto</th><th>Jan</th><th>Fev</th><th>Var.</th></tr></thead>
+              <tbody>
+                <tr><td>🥩 Frango Kg</td><td>R$12,90</td><td>R$15,40</td><td class="inf-up">+19%</td></tr>
+                <tr><td>🥛 Leite Lt</td><td>R$5,20</td><td>R$5,60</td><td class="inf-up">+8%</td></tr>
+                <tr><td>🧴 Shampoo</td><td>R$21,90</td><td>R$18,90</td><td class="inf-dn">-14%</td></tr>
+                <tr><td>🍞 Pão Francês</td><td>R$8,50</td><td>R$8,50</td><td style="color:var(--text2)">0%</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tendência SVG -->
+          <div class="chart-card">
+            <div class="chart-title">Evolução Mensal — 2025/2026</div>
+            <svg width="100%" height="80" viewBox="0 0 310 80">
+              <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4CAF7D" stop-opacity=".3"/><stop offset="100%" stop-color="#4CAF7D" stop-opacity="0"/></linearGradient></defs>
+              <path d="M10,65 L60,52 L110,60 L160,38 L210,45 L260,28 L295,22" fill="none" stroke="#4CAF7D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M10,65 L60,52 L110,60 L160,38 L210,45 L260,28 L295,22 L295,80 L10,80 Z" fill="url(#tg)"/>
+              <circle cx="10" cy="65" r="3.5" fill="#4CAF7D"/>
+              <circle cx="60" cy="52" r="3.5" fill="#4CAF7D"/>
+              <circle cx="110" cy="60" r="3.5" fill="#4CAF7D"/>
+              <circle cx="160" cy="38" r="3.5" fill="#4CAF7D"/>
+              <circle cx="210" cy="45" r="3.5" fill="#4CAF7D"/>
+              <circle cx="260" cy="28" r="3.5" fill="#4CAF7D"/>
+              <circle cx="295" cy="22" r="5" fill="#4CAF7D" stroke="white" stroke-width="2"/>
+              <text x="10" y="78" text-anchor="middle" font-family="Sora" font-size="8" fill="#6B7280">Set</text>
+              <text x="60" y="78" text-anchor="middle" font-family="Sora" font-size="8" fill="#6B7280">Out</text>
+              <text x="110" y="78" text-anchor="middle" font-family="Sora" font-size="8" fill="#6B7280">Nov</text>
+              <text x="160" y="78" text-anchor="middle" font-family="Sora" font-size="8" fill="#6B7280">Dez</text>
+              <text x="210" y="78" text-anchor="middle" font-family="Sora" font-size="8" fill="#6B7280">Jan</text>
+              <text x="260" y="78" text-anchor="middle" font-family="Sora" font-size="8" fill="#6B7280">Fev</text>
+              <text x="295" y="78" text-anchor="middle" font-family="Sora" font-size="8" fill="#4CAF7D" font-weight="700">Mar</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PROFILE ══ -->
+      <div class="screen" id="s-profile">
+        <div class="prof-hdr">
+          <div class="prof-avatar">👤</div>
+          <div>
+            <div class="prof-name">Carlos Henrique</div>
+            <div class="prof-email">carlos@email.com</div>
+            <div class="prof-plan-badge">⭐ Plano Gratuito</div>
+          </div>
+        </div>
+        <div class="prof-stats a1">
+          <div class="pstat"><div class="pstat-val">47</div><div class="pstat-lbl">Notas</div></div>
+          <div class="pstat"><div class="pstat-val">🔥 12</div><div class="pstat-lbl">Streak</div></div>
+          <div class="pstat"><div class="pstat-val">R$780</div><div class="pstat-lbl">Economizado</div></div>
+        </div>
+
+        <!-- Upgrade CTA -->
+        <div style="margin:0 16px 14px">
+          <div style="background:linear-gradient(135deg,#1B4F72,#0d2b42);border-radius:var(--r);padding:16px 18px;cursor:pointer" onclick="goTo('plans')">
+            <div style="font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">🔒 Exclusivo Pro</div>
+            <div style="font-family:'Sora',sans-serif;font-size:15px;font-weight:800;color:#fff;margin-bottom:6px">Liberdade de Sexta 🍺</div>
+            <div style="font-size:12px;color:rgba(255,255,255,.65);margin-bottom:12px">Receba toda sexta às 17h quanto você pode gastar sem culpa no fim de semana.</div>
+            <div style="background:var(--secondary);color:#fff;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;padding:8px 16px;border-radius:100px;display:inline-block">Assinar Pro — R$4,99/mês →</div>
+          </div>
+        </div>
+
+        <div class="prof-sec a2">
+          <div class="prof-sec-title">🏆 Conquistas</div>
+          <div class="badge-grid">
+            <div class="badge-card"><span class="badge-icon">🏭</span><div><div class="badge-name">Mestre do Atacado</div><div class="badge-desc">10 compras atacarejo</div></div></div>
+            <div class="badge-card"><span class="badge-icon">📊</span><div><div class="badge-name">Analista Pro</div><div class="badge-desc">30 dias de dados</div></div></div>
+            <div class="badge-card"><span class="badge-icon">💰</span><div><div class="badge-name">Economizador</div><div class="badge-desc">R$500+ poupados</div></div></div>
+            <div class="badge-card locked"><span class="badge-icon">🔒</span><div><div class="badge-name">Liberdade Total</div><div class="badge-desc">Requer plano Pro</div></div></div>
+          </div>
+        </div>
+
+        <div class="prof-sec a3">
+          <div class="prof-sec-title">⚙️ Configurações</div>
+          <div class="prof-item" onclick="showToast('🎯 Configurar metas')"><span class="prof-item-icon">🎯</span><span class="prof-item-txt">Metas Mensais</span><span class="prof-item-arr">›</span></div>
+          <div class="prof-item" onclick="showToast('🔔 Notificações')"><span class="prof-item-icon">🔔</span><span class="prof-item-txt">Notificações</span><span class="prof-item-arr">›</span></div>
+          <div class="prof-item" onclick="showToast('👨‍👩‍👧 Apenas no Pro Anual')"><span class="prof-item-icon">👨‍👩‍👧</span><span class="prof-item-txt">Modo Família</span><span style="font-size:10px;background:var(--secondary-l);color:#b07418;font-family:'Sora',sans-serif;font-weight:700;padding:2px 8px;border-radius:100px">Anual</span></div>
+          <div class="prof-item" onclick="showToast('📤 Exportar dados')"><span class="prof-item-icon">📤</span><span class="prof-item-txt">Exportar Dados (PDF/CSV)</span><span class="prof-item-arr">›</span></div>
+          <div class="prof-item" onclick="toggleDark()"><span class="prof-item-icon">🌙</span><span class="prof-item-txt">Tema Escuro</span><div class="toggle off" id="darkToggle"></div></div>
+          <div class="prof-item" onclick="showToast('🚪 Saindo...')"><span class="prof-item-icon">🚪</span><span class="prof-item-txt" style="color:var(--danger)">Sair da Conta</span></div>
+        </div>
+      </div>
+
+      <!-- ══ PLANS ══ -->
+      <div class="screen plans-screen" id="s-plans">
+        <div class="plans-hdr">
+          <div class="plans-close" onclick="goTo('home')">✕</div>
+          <div class="plans-hdr-title">Escolha seu Plano</div>
+          <div class="plans-hdr-sub">Controle real dos seus gastos por<br>menos de um café por semana</div>
+          <div class="plans-hdr-badge">💰 Preço invisível — R$4,99/mês</div>
+        </div>
+
+        <div class="plan-toggle-row">
+          <span class="plan-toggle-lbl" id="lbl-mensal">Mensal</span>
+          <div class="plan-toggle-pill monthly" id="planToggle" onclick="toggleBilling()"></div>
+          <span class="plan-toggle-lbl active-lbl" id="lbl-anual">Anual</span>
+          <span class="plan-save" id="planSaveBadge">33% off</span>
+        </div>
+
+        <div class="plan-cards">
+          <!-- FREE -->
+          <div class="plan-card-ui" onclick="showToast('✅ Plano atual: Gratuito')">
+            <div class="plan-card-name">Gratuito</div>
+            <div class="plan-card-price"><sup>R$</sup>0<sub>/mês</sub></div>
+            <div class="plan-card-desc">Para criar o hábito. Até 20 notas por mês.</div>
+            <div class="plan-feats">
+              <div class="plan-feat"><span class="feat-ok">✓</span>Até 20 notas/mês</div>
+              <div class="plan-feat"><span class="feat-ok">✓</span>Histórico de 30 dias</div>
+              <div class="plan-feat"><span class="feat-ok">✓</span>Dashboard básico</div>
+              <div class="plan-feat"><span class="feat-no-icon">✗</span><span style="color:var(--text2)">Relatórios avançados</span></div>
+              <div class="plan-feat"><span class="feat-no-icon">✗</span><span style="color:var(--text2)">Liberdade de Sexta 🍺</span></div>
+            </div>
+          </div>
+
+          <!-- PRO -->
+          <div class="plan-card-ui featured" onclick="showToast('🚀 Redirecionando para pagamento...')">
+            <div class="plan-popular">⭐ Mais popular</div>
+            <div class="plan-card-name">Pro</div>
+            <div class="plan-card-price" id="priceDisplay"><sup>R$</sup>4,99<sub>/mês</sub></div>
+            <div class="plan-card-desc" id="proDesc">Tudo ilimitado. O preço de uma bala por dia.</div>
+            <div class="plan-feats">
+              <div class="plan-feat"><span class="feat-ok">✓</span>Notas ilimitadas</div>
+              <div class="plan-feat"><span class="feat-ok">✓</span>Histórico completo</div>
+              <div class="plan-feat"><span class="feat-ok">✓</span>Relatórios avançados + inflação pessoal</div>
+              <div class="plan-feat"><span class="feat-ok">✓</span>Comparador de preços entre lojas</div>
+              <div class="plan-feat"><span class="feat-star-icon">🍺</span><strong>Liberdade de Sexta — toda Friday 17h</strong></div>
+              <div class="plan-feat"><span class="feat-ok">✓</span>Alertas de orçamento</div>
+              <div class="plan-feat"><span class="feat-ok">✓</span>Exportação PDF/CSV</div>
+              <div class="plan-feat"><span class="feat-ok">✓</span>Wrapped Anual compartilhável</div>
+              <div class="plan-feat" id="familyFeat"><span class="feat-no-icon" id="familyIcon">✗</span><span id="familyTxt" style="color:var(--text2)">Modo Família (Anual)</span></div>
+            </div>
+          </div>
+        </div>
+
+        <button class="plan-cta" onclick="showToast('💳 Pagamento via Stripe/PIX')">Assinar Pro — <span id="ctaPrice">R$4,99/mês</span></button>
+        <div class="plan-guarantee">🔒 <b>7 dias grátis.</b> Cancele quando quiser, sem burocracia. Pagamento via PIX ou cartão.</div>
+      </div>
+
+      <!-- ══ LIBERDADE DE SEXTA ══ -->
+      <div class="screen" id="s-liberdade">
+        <div class="lib-screen">
+          <div class="lib-bg"></div>
+          <div class="lib-close" onclick="goTo('home')">✕</div>
+          <div class="lib-content">
+            <span class="lib-emoji" id="libEmoji">🍺</span>
+            <div class="lib-title-lbl">Liberdade de Sexta</div>
+            <div class="lib-amount">R$ <span id="libAmount">134</span><span>,00</span></div>
+            <div class="lib-msg" id="libMsg">Você cortou supérfluos essa semana. Isso é exatamente um churrasco pra 4 pessoas e ainda sobra pra cerveja. Bom fim de semana! 🎉</div>
+
+            <div class="lib-breakdown">
+              <div class="lib-break-title">📋 Detalhamento da Economia</div>
+              <div class="lib-break-row"><span class="lib-break-cat">🍿 Snacks não comprados</span><span class="lib-break-val">R$42,00</span></div>
+              <div class="lib-break-row"><span class="lib-break-cat">🍺 Bebidas moderadas</span><span class="lib-break-val">R$67,00</span></div>
+              <div class="lib-break-row"><span class="lib-break-cat">💡 Impulsos evitados</span><span class="lib-break-val">R$25,00</span></div>
+            </div>
+
+            <div class="lib-suggestions">
+              <div class="lib-sug-title">🎯 Com R$134 você pode...</div>
+              <div class="lib-sug-cards">
+                <div class="lib-sug"><span class="lib-sug-icon">🍖</span><div class="lib-sug-txt"><b>Churrasco</b><br>pra 4 pessoas</div></div>
+                <div class="lib-sug"><span class="lib-sug-icon">🎬</span><div class="lib-sug-txt"><b>2 ingressos</b><br>cinema + pipoca</div></div>
+                <div class="lib-sug"><span class="lib-sug-icon">🍕</span><div class="lib-sug-txt"><b>Pizza grande</b><br>+ refrigerante</div></div>
+                <div class="lib-sug"><span class="lib-sug-icon">🍻</span><div class="lib-sug-txt"><b>Chopp</b><br>pra turma</div></div>
+              </div>
+            </div>
+
+            <button class="lib-share" onclick="showToast('📤 Imagem gerada para compartilhar!')">📤 Compartilhar no Stories</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /screen-wrap -->
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+      <div class="nav-item active" id="nav-home" onclick="goTo('home')"><span class="nav-icon">🏠</span><span class="nav-lbl">Início</span></div>
+      <div class="nav-item" id="nav-history" onclick="goTo('history')"><span class="nav-icon">📋</span><span class="nav-lbl">Histórico</span></div>
+      <div class="nav-fab" onclick="goTo('scan')"><span class="nav-fab-icon">📷</span></div>
+      <div class="nav-item" id="nav-reports" onclick="goTo('reports')"><span class="nav-icon">📊</span><span class="nav-lbl">Relatórios</span></div>
+      <div class="nav-item" id="nav-profile" onclick="goTo('profile')"><span class="nav-icon">👤</span><span class="nav-lbl">Perfil</span></div>
+    </nav>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!-- ══ DETAIL DRAWER ══ -->
+    <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+    <div class="drawer" id="drawer">
+      <div class="drawer-handle" onclick="closeDrawer()"></div>
+      <div class="drawer-header">
+        <div class="drawer-store-logo" id="d-logo">🛒</div>
+        <div>
+          <div class="drawer-store-name" id="d-store">—</div>
+          <div class="drawer-store-meta" id="d-meta">—</div>
+        </div>
+        <div class="drawer-total">
+          <div class="drawer-total-val" id="d-total">—</div>
+          <div class="drawer-total-lbl">Total pago</div>
+        </div>
+        <div class="drawer-close" onclick="closeDrawer()">✕</div>
+      </div>
+
+      <div class="drawer-body">
+        <!-- Summary pills -->
+        <div class="drawer-pills">
+          <div class="dpill"><span class="dpill-val" id="d-nitems">—</span><span class="dpill-lbl">Itens</span></div>
+          <div class="dpill"><span class="dpill-val" id="d-ticket">—</span><span class="dpill-lbl">Ticket médio</span></div>
+          <div class="dpill"><span class="dpill-val" id="d-ncats">—</span><span class="dpill-lbl">Categorias</span></div>
+          <div class="dpill"><span class="dpill-val" id="d-type">—</span><span class="dpill-lbl">Tipo de compra</span></div>
+        </div>
+
+        <!-- Category breakdown -->
+        <div class="drawer-cats">
+          <div class="drawer-sec-lbl">Gastos por Categoria</div>
+          <div id="d-cats-list"></div>
+        </div>
+
+        <!-- Insight -->
+        <div class="drawer-insight" id="d-insight">
+          <span class="di-icon">💡</span>
+          <div class="di-txt" id="d-insight-txt">—</div>
+        </div>
+
+        <!-- Item list -->
+        <div class="drawer-items">
+          <div class="drawer-sec-lbl" style="margin-top:4px">Todos os Itens</div>
+          <div id="d-items-list"></div>
+        </div>
+
+        <!-- Actions -->
+        <div class="drawer-actions">
+          <div class="daction" onclick="showToast('📤 Nota compartilhada!')"><span class="daction-icon">📤</span><span class="daction-lbl">Compartilhar</span></div>
+          <div class="daction" onclick="showToast('📄 PDF gerado!')"><span class="daction-icon">📄</span><span class="daction-lbl">Exportar PDF</span></div>
+          <div class="daction" onclick="showToast('🗑️ Nota removida')"><span class="daction-icon">🗑️</span><span class="daction-lbl">Remover</span></div>
+          <div class="daction" onclick="showToast('🔗 Chave copiada!')"><span class="daction-icon">🔑</span><span class="daction-lbl">Chave NF-e</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /phone -->
+</div><!-- /outer -->
+
+<script>
+
+<script>
+(function() {
+'use strict';
+
+// ── STATE ──
+const NAV_SCREENS = ['home','scan','history','reports','profile'];
+const ALL_SCREENS = ['home','scan','history','reports','profile','plans','liberdade'];
+let currentScreen = 'home';
+let darkMode = false;
+let isAnnual = true;
+let libIdx = 0;
+let toastTimer;
+let touchStartY = 0;
+
+// ── NAVIGATION ──
+window.goTo = function(name) {
+  ALL_SCREENS.forEach(s => {
+    const el = document.getElementById('s-' + s);
+    if (el) el.classList.remove('active');
+  });
+  NAV_SCREENS.forEach(s => {
+    const n = document.getElementById('nav-' + s);
+    if (n) n.classList.remove('active');
+  });
+  document.querySelectorAll('.sidebar-btn').forEach(b => b.classList.remove('active'));
+
+  if (name !== 'scan') {
+    const ss = document.getElementById('scanSuccess');
+    if (ss) ss.classList.remove('show');
+  }
+
+  const target = document.getElementById('s-' + name);
+  if (target) { target.classList.add('active'); target.scrollTop = 0; }
+  const navTarget = document.getElementById('nav-' + name);
+  if (navTarget) navTarget.classList.add('active');
+  const sbTarget = document.getElementById('sb-' + name);
+  if (sbTarget) sbTarget.classList.add('active');
+
+  // Status bar colour
+  const sb = document.getElementById('statusBar');
+  if (['scan','liberdade'].includes(name)) {
+    sb.style.background = '#000';
+    sb.querySelector('.status-time').style.color = '#fff';
+    sb.querySelector('.status-icons').style.color = '#fff';
+  } else if (name === 'plans') {
+    sb.style.background = '#0F2027';
+    sb.querySelector('.status-time').style.color = '#fff';
+    sb.querySelector('.status-icons').style.color = '#fff';
+  } else {
+    sb.style.background = darkMode ? '#0F1117' : 'var(--bg)';
+    sb.querySelector('.status-time').style.color = darkMode ? '#fff' : 'var(--text)';
+    sb.querySelector('.status-icons').style.color = darkMode ? '#fff' : 'var(--text)';
+  }
+
+  currentScreen = name;
+  if (name === 'home') animateCounter();
+  if (name === 'liberdade') rotateLiberdade();
+};
+
+// ── COUNTER ──
+function animateCounter() {
+  const el = document.getElementById('counterTotal');
+  if (!el) return;
+  let val = 0, target = 2847;
+  const step = target / 40;
+  const timer = setInterval(() => {
+    val = Math.min(val + step, target);
+    el.textContent = Math.round(val).toLocaleString('pt-BR');
+    if (val >= target) clearInterval(timer);
+  }, 18);
+}
+
+// ── SCAN ──
+window.triggerScan = function() {
+  document.getElementById('scanSuccess').classList.add('show');
+};
+window.closeScan = function() {
+  document.getElementById('scanSuccess').classList.remove('show');
+  window.goTo('home');
+};
+
+// ── FILTER CHIPS ──
+window.setFilter = function(el, val) {
+  el.closest('.filter-row').querySelectorAll('.fchip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  window.showToast('🔍 Filtro: ' + val);
+};
+
+// ── HISTORY SEARCH ──
+window.filterHistory = function(val) {
+  document.querySelectorAll('.hcard').forEach(c => {
+    c.style.display = (val === '' || c.textContent.toLowerCase().includes(val.toLowerCase())) ? '' : 'none';
+  });
+};
+
+// ── PERIOD BUTTONS ──
+window.setPeriod = function(el) {
+  el.closest('.period-row').querySelectorAll('.pbtn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  window.showToast('📅 Período: ' + el.textContent);
+};
+
+// ── BILLING TOGGLE ──
+window.toggleBilling = function() {
+  isAnnual = !isAnnual;
+  const tog = document.getElementById('planToggle');
+  tog.classList.toggle('monthly', !isAnnual);
+  document.getElementById('priceDisplay').innerHTML = isAnnual
+    ? '<sup>R$</sup>3,33<sub>/mês</sub>'
+    : '<sup>R$</sup>4,99<sub>/mês</sub>';
+  document.getElementById('proDesc').textContent = isAnnual
+    ? 'R$39,99/ano cobrado de uma vez. Economize R$20!'
+    : 'Tudo ilimitado. O preço de uma bala por dia.';
+  document.getElementById('ctaPrice').textContent = isAnnual ? 'R$39,99/ano' : 'R$4,99/mês';
+  const badge = document.getElementById('planSaveBadge');
+  if (badge) badge.style.display = isAnnual ? '' : 'none';
+  document.getElementById('lbl-mensal').classList.toggle('active-lbl', !isAnnual);
+  document.getElementById('lbl-anual').classList.toggle('active-lbl', isAnnual);
+  const icon = document.getElementById('familyIcon');
+  const txt  = document.getElementById('familyTxt');
+  if (isAnnual) {
+    icon.textContent = '✓'; icon.className = 'feat-ok';
+    txt.textContent = 'Modo Família (até 4 membros)'; txt.style.color = 'var(--text)';
+  } else {
+    icon.textContent = '✗'; icon.className = 'feat-no-icon';
+    txt.textContent = 'Modo Família (Anual)'; txt.style.color = 'var(--text2)';
+  }
+};
+
+// ── LIBERDADE ROTATION ──
+const libMessages = [
+  { emoji:'🍺', amount:134, msg:'Você cortou supérfluos essa semana. Isso é um churrasco pra 4 pessoas e ainda sobra pra cerveja. Bom fim de semana! 🎉' },
+  { emoji:'🎬', amount:87,  msg:'R$87 economizados! Dá pra 2 ingressos de cinema + pipoca + refrigerante. Você merece! 🍿' },
+  { emoji:'🍕', amount:210, msg:'Semana controlada = fim de semana épico! Isso é uma pizza grande, uma rodada de chopp e ainda sobra. Vai aproveitar! 🎉' },
+  { emoji:'🏖️', amount:52,  msg:'Missão cumprida! R$52 livres. Que tal um passeio gostoso esse fim de semana? Você ganhou!' },
+];
+
+function rotateLiberdade() {
+  const m = libMessages[libIdx % libMessages.length];
+  document.getElementById('libEmoji').textContent = m.emoji;
+  document.getElementById('libAmount').textContent = m.amount.toString();
+  document.getElementById('libMsg').textContent = m.msg;
+  libIdx++;
+}
+
+// ── DARK MODE ──
+window.toggleDark = function() {
+  darkMode = !darkMode;
+  document.getElementById('darkToggle').classList.toggle('off', !darkMode);
+  if (darkMode) {
+    document.documentElement.style.setProperty('--bg',      '#0F1117');
+    document.documentElement.style.setProperty('--surface', '#1A1D27');
+    document.documentElement.style.setProperty('--border',  '#2a2d3a');
+    document.documentElement.style.setProperty('--text',    '#FFFFFF');
+    document.documentElement.style.setProperty('--text2',   '#9CA3AF');
+    window.showToast('🌙 Tema escuro ativado');
+  } else {
+    document.documentElement.style.setProperty('--bg',      '#FAFAF7');
+    document.documentElement.style.setProperty('--surface', '#FFFFFF');
+    document.documentElement.style.setProperty('--border',  '#EBEBEB');
+    document.documentElement.style.setProperty('--text',    '#1C1C1E');
+    document.documentElement.style.setProperty('--text2',   '#6B7280');
+    window.showToast('☀️ Tema claro ativado');
+  }
+};
+
+// ── TOAST ──
+window.showToast = function(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+};
+
+// ── INVOICE DATA ──
+const INVOICES = {
+  'pao-acucar-fev17': {
+    store:'Pão de Açúcar', logo:'🛒', logoBg:'#FEF5E7',
+    date:'17 fev 2026 · 08:32', address:'Av. Paulista, 1374 — SP', total:312.80,
+    type:'🛒 Reposição', cnpj:'47.508.411/0002-75',
+    insight:'Higiene e beleza representou <b>18%</b> dessa compra. Você está <b>R$80 acima</b> do orçamento mensal nessa categoria.',
+    categories:[
+      {emoji:'🥩',name:'Alimentação',        value:158.40,pct:51,color:'#4CAF7D'},
+      {emoji:'🧴',name:'Higiene & Beleza',   value:56.30, pct:18,color:'#F5A623'},
+      {emoji:'🍿',name:'Snacks',             value:43.20, pct:14,color:'#7C3AED'},
+      {emoji:'🥤',name:'Bebidas',            value:31.60, pct:10,color:'#1B4F72'},
+      {emoji:'🧹',name:'Limpeza',            value:23.30, pct:7, color:'#E5E7EB'},
+    ],
+    items:[
+      {emoji:'🥩',name:'Frango Resfriado Kg',              qty:'2x 1,2kg',     price:'R$36,90',unit:'R$15,38/kg',cat:'Alimentação',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🥛',name:'Leite Integral Italac 1L',          qty:'4 unidades',   price:'R$22,40',unit:'R$5,60/un', cat:'Alimentação',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🧀',name:'Queijo Mussarela Fatiado 200g',     qty:'1 unidade',    price:'R$18,90',unit:'—',         cat:'Alimentação',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🥚',name:'Ovos Caipira Dz.',                  qty:'2 dúzias',     price:'R$28,60',unit:'R$14,30/dz',cat:'Alimentação',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🍅',name:'Tomate Italiano Kg',                qty:'0,8 kg',       price:'R$7,60', unit:'R$9,50/kg', cat:'Alimentação',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🥬',name:'Alface Americana Kg',               qty:'0,4 kg',       price:'R$4,40', unit:'R$11,00/kg',cat:'Alimentação',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🫒',name:'Azeite Extravirgem Gallo 500ml',    qty:'1 unidade',    price:'R$38,90',unit:'—',         cat:'Alimentação',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🍞',name:'Pão de Forma Wickbold Integral',    qty:'1 unidade',    price:'R$8,00', unit:'—',         cat:'Alimentação',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🥩',name:'Linguiça Toscana Perdigão 500g',   qty:'2 pacotes',    price:'R$23,00',unit:'R$11,50/un',cat:'Alimentação',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🧴',name:'Shampoo Seda Ceramidas 325ml',      qty:'1 unidade',    price:'R$18,90',unit:'—',         cat:'Higiene',   catBg:'#FEF5E7',catColor:'#b07418'},
+      {emoji:'🧴',name:'Condicionador Seda 325ml',          qty:'1 unidade',    price:'R$18,90',unit:'—',         cat:'Higiene',   catBg:'#FEF5E7',catColor:'#b07418'},
+      {emoji:'🪥',name:'Escova Dental Oral-B 3D',           qty:'2 unidades',   price:'R$18,50',unit:'R$9,25/un', cat:'Higiene',   catBg:'#FEF5E7',catColor:'#b07418'},
+      {emoji:'🍿',name:'Batata Chips Ruffles 152g',         qty:'3 pacotes',    price:'R$22,80',unit:'R$7,60/un', cat:'Snacks',    catBg:'#F3E8FF',catColor:'#6d28d9'},
+      {emoji:'🍫',name:'Chocolate Lacta ao Leite 170g',     qty:'2 unidades',   price:'R$20,40',unit:'R$10,20/un',cat:'Snacks',    catBg:'#F3E8FF',catColor:'#6d28d9'},
+      {emoji:'🥤',name:'Suco Del Valle Uva 1L',             qty:'2 unidades',   price:'R$14,80',unit:'R$7,40/un', cat:'Bebidas',   catBg:'#EAF2F8',catColor:'#1B4F72'},
+      {emoji:'🧃',name:'Néctar Maguary Maracujá 1L',        qty:'2 unidades',   price:'R$16,80',unit:'R$8,40/un', cat:'Bebidas',   catBg:'#EAF2F8',catColor:'#1B4F72'},
+      {emoji:'🧹',name:'Amaciante Confort Concentrado 1L',  qty:'1 unidade',    price:'R$12,90',unit:'—',         cat:'Limpeza',   catBg:'#EAF2F8',catColor:'#1B4F72'},
+      {emoji:'🧼',name:'Detergente Ypê 500ml',              qty:'3 unidades',   price:'R$10,40',unit:'R$3,47/un', cat:'Limpeza',   catBg:'#EAF2F8',catColor:'#1B4F72'},
+    ]
+  },
+
+  'atacadao-fev14': {
+    store:'Atacadão', logo:'🏭', logoBg:'#E8F5EE',
+    date:'14 fev 2026 · 10:15', address:'Rod. Anhanguera, km 24 — SP', total:847.40,
+    type:'📦 Compra Mensal', cnpj:'75.315.333/0001-09',
+    insight:'O frango aqui custou <b>R$13,80/kg</b> — <b>R$4,20/kg mais barato</b> do que no Pão de Açúcar. Você economizou ~R$50 só nesse item.',
+    categories:[
+      {emoji:'🥩',name:'Carnes e Proteínas', value:312.00,pct:37,color:'#4CAF7D'},
+      {emoji:'🥬',name:'Hortifruti',         value:156.80,pct:18,color:'#2e7d51'},
+      {emoji:'🧹',name:'Limpeza',            value:143.20,pct:17,color:'#1B4F72'},
+      {emoji:'🧴',name:'Higiene',            value:118.60,pct:14,color:'#F5A623'},
+      {emoji:'🍿',name:'Snacks & Outros',    value:116.80,pct:14,color:'#7C3AED'},
+    ],
+    items:[
+      {emoji:'🥩',name:'Frango Inteiro Resfriado Kg',    qty:'4x 1,3 kg',  price:'R$71,76',unit:'R$13,80/kg',cat:'Carnes',    catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🥩',name:'Acém Bovino Kg',                qty:'2 kg',        price:'R$59,80',unit:'R$29,90/kg',cat:'Carnes',    catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🥩',name:'Costela Bovina Kg',             qty:'1,5 kg',      price:'R$62,25',unit:'R$41,50/kg',cat:'Carnes',    catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🐟',name:'Filé de Tilápia Congelado 1kg', qty:'2 pacotes',   price:'R$56,00',unit:'R$28,00/un',cat:'Carnes',    catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🥚',name:'Ovos Brancos C3 30un',          qty:'3 caixas',    price:'R$62,19',unit:'R$20,73/cx',cat:'Carnes',    catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🥔',name:'Batata Inglesa Kg',             qty:'3 kg',        price:'R$14,70',unit:'R$4,90/kg', cat:'Hortifruti',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🧅',name:'Cebola Kg',                    qty:'2 kg',        price:'R$9,80', unit:'R$4,90/kg', cat:'Hortifruti',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🧄',name:'Alho Granulado 100g',          qty:'3 potes',     price:'R$22,80',unit:'R$7,60/un', cat:'Hortifruti',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🍋',name:'Limão Siciliano Kg',           qty:'1 kg',        price:'R$12,90',unit:'—',          cat:'Hortifruti',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🧹',name:'Água Sanitária Omo 2L',        qty:'4 unidades',  price:'R$29,60',unit:'R$7,40/un', cat:'Limpeza',   catBg:'#EAF2F8',catColor:'#1B4F72'},
+      {emoji:'🧽',name:'Esponja de Aço Bombril 8un',   qty:'2 pacotes',   price:'R$14,80',unit:'R$7,40/un', cat:'Limpeza',   catBg:'#EAF2F8',catColor:'#1B4F72'},
+      {emoji:'🪣',name:'Desinfetante Pinho Sol 2L',    qty:'3 unidades',  price:'R$44,70',unit:'R$14,90/un',cat:'Limpeza',   catBg:'#EAF2F8',catColor:'#1B4F72'},
+      {emoji:'🧼',name:'Sabão em Pó OMO Multi 5kg',   qty:'1 pacote',    price:'R$54,10',unit:'—',          cat:'Limpeza',   catBg:'#EAF2F8',catColor:'#1B4F72'},
+      {emoji:'🧴',name:'Creme Dental Colgate 90g',    qty:'6 unidades',  price:'R$35,40',unit:'R$5,90/un', cat:'Higiene',   catBg:'#FEF5E7',catColor:'#b07418'},
+      {emoji:'🚿',name:'Sabonete Dove Cream 90g',     qty:'6 unidades',  price:'R$29,40',unit:'R$4,90/un', cat:'Higiene',   catBg:'#FEF5E7',catColor:'#b07418'},
+      {emoji:'🧻',name:'Papel Higiênico Neve 16 rolos',qty:'2 pacotes',  price:'R$53,80',unit:'R$26,90/pct',cat:'Higiene',  catBg:'#FEF5E7',catColor:'#b07418'},
+      {emoji:'🍫',name:'Achocolatado Nescau 400g',    qty:'4 unidades',  price:'R$55,60',unit:'R$13,90/un',cat:'Snacks',    catBg:'#F3E8FF',catColor:'#6d28d9'},
+      {emoji:'🍪',name:'Bolacha Maizena Nestlé 400g', qty:'4 pacotes',   price:'R$27,60',unit:'R$6,90/un', cat:'Snacks',    catBg:'#F3E8FF',catColor:'#6d28d9'},
+    ]
+  },
+
+  'farmacia-fev12': {
+    store:'Farmácia São Paulo', logo:'💊', logoBg:'#FDEDEC',
+    date:'12 fev 2026 · 14:20', address:'Rua Augusta, 892 — SP', total:89.90,
+    type:'❤️ Saúde', cnpj:'61.412.110/0001-60',
+    insight:'Farmácia representa <b>3%</b> do gasto mensal — dentro do esperado para saúde e bem-estar.',
+    categories:[
+      {emoji:'💊',name:'Saúde / Medicamentos',value:55.80,pct:62,color:'#E74C3C'},
+      {emoji:'🧴',name:'Higiene & Beleza',    value:34.10,pct:38,color:'#F5A623'},
+    ],
+    items:[
+      {emoji:'💊',name:'Dipirona Sódica 500mg 20cp',         qty:'1 caixa',   price:'R$12,90',unit:'—',cat:'Saúde',  catBg:'#FDEDEC',catColor:'#c0392b'},
+      {emoji:'💊',name:'Omeprazol 20mg 28cp',                qty:'1 caixa',   price:'R$24,90',unit:'—',cat:'Saúde',  catBg:'#FDEDEC',catColor:'#c0392b'},
+      {emoji:'🩹',name:'Curativo Band-Aid Transparente 40un',qty:'1 caixa',   price:'R$18,00',unit:'—',cat:'Saúde',  catBg:'#FDEDEC',catColor:'#c0392b'},
+      {emoji:'🧴',name:'Protetor Solar Neutrogena FPS60 120ml',qty:'1 unidade',price:'R$34,10',unit:'—',cat:'Higiene',catBg:'#FEF5E7',catColor:'#b07418'},
+    ]
+  },
+
+  'padaria-fev10': {
+    store:'Padaria Estrela', logo:'🥖', logoBg:'#FEF5E7',
+    date:'10 fev 2026 · 07:45', address:'Rua dos Pinheiros, 450 — SP', total:42.80,
+    type:'⚡ Compra Rápida', cnpj:'12.345.678/0001-99',
+    insight:'Café da manhã para a família! Custo médio de <b>R$8,56 por pessoa</b> — bem dentro do razoável para padaria.',
+    categories:[
+      {emoji:'🥖',name:'Padaria & Confeitaria',value:28.40,pct:66,color:'#F5A623'},
+      {emoji:'☕',name:'Bebidas',              value:14.40,pct:34,color:'#1B4F72'},
+    ],
+    items:[
+      {emoji:'🥐',name:'Croissant de Manteiga',      qty:'4 unidades',price:'R$16,00',unit:'R$4,00/un',cat:'Padaria', catBg:'#FEF5E7',catColor:'#b07418'},
+      {emoji:'🍰',name:'Fatia de Bolo de Chocolate', qty:'2 fatias',  price:'R$12,40',unit:'R$6,20/un',cat:'Padaria', catBg:'#FEF5E7',catColor:'#b07418'},
+      {emoji:'☕',name:'Café Expresso Duplo',        qty:'2 unidades',price:'R$10,00',unit:'R$5,00/un',cat:'Bebidas', catBg:'#EAF2F8',catColor:'#1B4F72'},
+      {emoji:'🥛',name:'Vitamina de Banana 300ml',  qty:'1 unidade', price:'R$4,40', unit:'—',         cat:'Bebidas', catBg:'#EAF2F8',catColor:'#1B4F72'},
+    ]
+  },
+
+  'atacadao-jan28': {
+    store:'Atacadão', logo:'🏭', logoBg:'#E8F5EE',
+    date:'28 jan 2026 · 09:00', address:'Rod. Anhanguera, km 24 — SP', total:1124.60,
+    type:'📦 Compra Mensal', cnpj:'75.315.333/0001-09',
+    insight:'Sua maior compra do ano! Comparando com fevereiro, você gastou <b>R$277 a mais</b> no atacadão de janeiro.',
+    categories:[
+      {emoji:'🥩',name:'Carnes e Proteínas',value:398.40,pct:35,color:'#4CAF7D'},
+      {emoji:'🧹',name:'Limpeza',           value:224.92,pct:20,color:'#1B4F72'},
+      {emoji:'🥬',name:'Hortifruti',        value:202.43,pct:18,color:'#2e7d51'},
+      {emoji:'🧴',name:'Higiene',           value:179.94,pct:16,color:'#F5A623'},
+      {emoji:'🍿',name:'Outros',            value:118.91,pct:11,color:'#7C3AED'},
+    ],
+    items:[
+      {emoji:'🥩',name:'Picanha Bovina Premium Kg',          qty:'2 kg',       price:'R$179,80',unit:'R$89,90/kg', cat:'Carnes',    catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🥩',name:'Frango Inteiro Resfriado Kg',        qty:'5x 1,2 kg',  price:'R$82,80', unit:'R$13,80/kg', cat:'Carnes',    catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🐟',name:'Salmão Norueguês Kg',               qty:'1 kg',       price:'R$79,90', unit:'—',           cat:'Carnes',    catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🥚',name:'Ovos Brancos 30un',                  qty:'4 caixas',   price:'R$82,80', unit:'R$20,70/cx', cat:'Carnes',    catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🧹',name:'Sabão OMO Líquido 5L',               qty:'2 galões',   price:'R$119,80',unit:'R$59,90/un', cat:'Limpeza',   catBg:'#EAF2F8',catColor:'#1B4F72'},
+      {emoji:'🪣',name:'Desinfetante Flora 5L',              qty:'2 unidades', price:'R$59,80', unit:'R$29,90/un', cat:'Limpeza',   catBg:'#EAF2F8',catColor:'#1B4F72'},
+      {emoji:'🧻',name:'Papel Toalha Scala 2 rolos',         qty:'8 pacotes',  price:'R$45,32', unit:'R$5,67/pct', cat:'Limpeza',   catBg:'#EAF2F8',catColor:'#1B4F72'},
+      {emoji:'🥔',name:'Batata Inglesa Kg',                  qty:'5 kg',       price:'R$24,50', unit:'R$4,90/kg',  cat:'Hortifruti',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🍊',name:'Laranja Pera Kg',                    qty:'4 kg',       price:'R$23,60', unit:'R$5,90/kg',  cat:'Hortifruti',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🥦',name:'Brócolis Ninja Kg',                  qty:'1 kg',       price:'R$18,90', unit:'—',           cat:'Hortifruti',catBg:'#E8F5EE',catColor:'#2e7d51'},
+      {emoji:'🧴',name:'Shampoo Pantene 400ml',              qty:'4 unidades', price:'R$87,60', unit:'R$21,90/un', cat:'Higiene',   catBg:'#FEF5E7',catColor:'#b07418'},
+      {emoji:'🧻',name:'Papel Higiênico Neve 32 rolos',      qty:'3 pacotes',  price:'R$92,34', unit:'R$30,78/pct',cat:'Higiene',   catBg:'#FEF5E7',catColor:'#b07418'},
+      {emoji:'🍫',name:'Achocolatado Toddynho 200ml',        qty:'12 unidades',price:'R$56,40', unit:'R$4,70/un',  cat:'Outros',    catBg:'#F3E8FF',catColor:'#6d28d9'},
+      {emoji:'☕',name:'Café Pilão Tradicional 500g',        qty:'4 pacotes',  price:'R$67,11', unit:'R$16,78/un', cat:'Outros',    catBg:'#F3E8FF',catColor:'#6d28d9'},
+    ]
+  }
+};
+
+// ── DRAWER ──
+window.openDrawer = function(id) {
+  const inv = INVOICES[id];
+  if (!inv) return;
+
+  document.getElementById('d-logo').textContent   = inv.logo;
+  document.getElementById('d-logo').style.background = inv.logoBg;
+  document.getElementById('d-store').textContent  = inv.store;
+  document.getElementById('d-meta').textContent   = inv.date + ' · ' + inv.address;
+  document.getElementById('d-total').textContent  = 'R$' + inv.total.toFixed(2).replace('.', ',');
+  document.getElementById('d-nitems').textContent = inv.items.length;
+  document.getElementById('d-ticket').textContent = 'R$' + (inv.total / inv.items.length).toFixed(2).replace('.', ',');
+  document.getElementById('d-ncats').textContent  = inv.categories.length;
+  document.getElementById('d-type').textContent   = inv.type;
+
+  const maxVal = Math.max(...inv.categories.map(c => c.value));
+  document.getElementById('d-cats-list').innerHTML = inv.categories.map(c => `
+    <div class="dcat-row">
+      <span class="dcat-icon">${c.emoji}</span>
+      <span class="dcat-name">${c.name}</span>
+      <div class="dcat-bar-wrap"><div class="dcat-bar" style="width:${Math.round(c.value/maxVal*100)}%;background:${c.color}"></div></div>
+      <span class="dcat-val">R$${c.value.toFixed(2).replace('.',',')}</span>
+    </div>`).join('');
+
+  document.getElementById('d-insight-txt').innerHTML = inv.insight;
+
+  document.getElementById('d-items-list').innerHTML = inv.items.map(it => `
+    <div class="item-row">
+      <span class="item-emoji">${it.emoji}</span>
+      <div class="item-info">
+        <div class="item-name">${it.name}</div>
+        <div class="item-qty">${it.qty}</div>
+        <span class="item-cat" style="background:${it.catBg};color:${it.catColor}">${it.cat}</span>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div class="item-price">${it.price}</div>
+        <div class="item-unit">${it.unit}</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.getElementById('drawer').classList.add('open');
+};
+
+window.closeDrawer = function() {
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('drawer').classList.remove('open');
+};
+
+// ── CLOCK ──
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('statusTime').textContent = h + ':' + m;
+}
+setInterval(updateClock, 10000);
+
+// ── QR MOCK ──
+const qrPattern = [1,1,1,0,1,1,1,1,0,0,1,0,0,1,1,1,1,0,1,1,1,0,1,0,1,1,0,0,1,0,0,1,0,1,0,1,0,1,0,0,1,0,1,0,1,1,1,1,0];
+const qrEl = document.getElementById('mockQr');
+if (qrEl) {
+  qrPattern.forEach((v, i) => {
+    if (i >= 49) return;
+    const c = document.createElement('div');
+    c.className = 'qr-cell';
+    c.style.opacity = v ? '1' : '0';
+    qrEl.appendChild(c);
+  });
+}
+
+// ── SWIPE TO CLOSE DRAWER ──
+const drawerEl = document.getElementById('drawer');
+if (drawerEl) {
+  drawerEl.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; });
+  drawerEl.addEventListener('touchend', e => {
+    if (e.changedTouches[0].clientY - touchStartY > 80) window.closeDrawer();
+  });
+}
+
+// ── LIBERDADE: tap to rotate ──
+const libScreen = document.getElementById('s-liberdade');
+if (libScreen) {
+  libScreen.addEventListener('click', function(e) {
+    if (!e.target.closest('button') && !e.target.closest('.lib-close')) rotateLiberdade();
+  });
+}
+
+// ── INIT ──
+animateCounter();
+
+})(); // end IIFE
+</script>
+</body>
+</html>

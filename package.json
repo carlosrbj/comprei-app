@@ -1,0 +1,19 @@
+{
+  "name": "leitor-notafiscal-mercado",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:backend": "npm run start:dev --workspace=apps/backend",
+    "dev:mobile": "npm start --workspace=apps/mobile",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

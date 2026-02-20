@@ -1,0 +1,91 @@
+{
+  "expo": {
+    "name": "Comprei",
+    "slug": "comprei",
+    "scheme": "comprei",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.comprei.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "comprei",
+              "host": "r"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ],
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Permitir acesso à câmera para ler notas fiscais."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#4CAF7D",
+          "androidMode": "default",
+          "androidCollapsedTitle": "Comprei"
+        }
+      ],
+      "expo-sqlite"
+    ],
+    "notification": {
+      "color": "#4CAF7D",
+      "androidMode": "default",
+      "androidCollapsedTitle": "Comprei"
+    },
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "https://api-production-8888.up.railway.app",
+      "eas": {
+        "projectId": "69008e06-45fd-4990-8ef6-cba4f85f33ca"
+      },
+      "router": {
+        "origin": false
+      }
+    },
+    "owner": "laranjazda"
+  }
+}

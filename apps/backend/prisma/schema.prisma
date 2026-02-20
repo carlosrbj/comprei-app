@@ -1,0 +1,277 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id               String         @id @default(uuid())
+  email            String         @unique
+  password         String
+  name             String?
+  plan             String         @default("free") @map("plan")
+  planExpiresAt    DateTime?      @map("plan_expires_at")
+  stripeCustomerId String?        @unique @map("stripe_customer_id")
+  referralCode     String?        @unique @map("referral_code")
+  referredBy       String?        @map("referred_by")
+  referralCount    Int            @default(0) @map("referral_count")
+  onboardingCompleted   Boolean   @default(false) @map("onboarding_completed")
+  onboardingStep        Int       @default(0) @map("onboarding_step")
+  onboardingCompletedAt DateTime? @map("onboarding_completed_at")
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  invoices              Invoice[]
+  subscriptions         Subscription[]
+  pushTokens            PushToken[]
+  fridayNotifications   FridayNotification[]
+  referrals             Referral[] @relation("ReferrerReferrals")
+  referredByRelation    Referral?  @relation("RefereeReferral")
+  onboardingEvents      OnboardingEvent[]
+  budgets               Budget[]
+
+  @@map("users")
+}
+
+model Subscription {
+  id                   String   @id @default(cuid())
+  userId               String   @map("user_id")
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeSubscriptionId String?  @unique @map("stripe_subscription_id")
+  plan                 String   // "pro_monthly" | "pro_annual"
+  status               String   // "active" | "canceled" | "past_due" | "trialing"
+  currentPeriodStart   DateTime @map("current_period_start")
+  currentPeriodEnd     DateTime @map("current_period_end")
+  cancelAtPeriodEnd    Boolean  @default(false) @map("cancel_at_period_end")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@index([userId])
+  @@map("subscriptions")
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  externalId    String?  @unique @map("external_id")
+  amount        Decimal  @db.Decimal(10, 2)
+  currency      String   @default("BRL")
+  status        String   // "succeeded" | "pending" | "failed"
+  plan          String
+  paymentMethod String   @default("card") @map("payment_method")
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+  @@map("payments")
+}
+
+model Invoice {
+  id                String        @id @default(uuid())
+  accessKey         String        @unique @map("access_key")
+  url               String?
+  date              DateTime
+  totalValue        Decimal       @map("total_value") @db.Decimal(10, 2)
+  establishmentName String        @map("establishment_name")
+  
+  userId            String        @map("user_id")
+  user              User          @relation(fields: [userId], references: [id])
+  
+  items             InvoiceItem[]
+  
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@map("invoices")
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  emoji     String
+  color     String
+  keywords  String[]
+  products  Product[]
+  budgets   Budget[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("categories")
+}
+
+model Product {
+  id          String        @id @default(uuid())
+  code        String?       @unique // EAN or internal code
+  description String
+  categoryId  String?       @map("category_id")
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  items       InvoiceItem[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("products")
+}
+
+model InvoiceItem {
+  id         String   @id @default(uuid())
+  quantity   Decimal  @db.Decimal(10, 3)
+  unit       String
+  unitPrice  Decimal  @map("unit_price") @db.Decimal(10, 2)
+  totalPrice Decimal  @map("total_price") @db.Decimal(10, 2)
+
+  invoiceId  String   @map("invoice_id")
+  invoice    Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  productId  String   @map("product_id")
+  product    Product  @relation(fields: [productId], references: [id])
+
+  @@map("invoice_items")
+}
+
+model PushToken {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  platform  String   // "ios" | "android" | "web"
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([token])
+  @@map("push_tokens")
+}
+
+model FridayNotification {
+  id              String    @id @default(cuid())
+  userId          String    @map("user_id")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  weekStartDate   DateTime  @map("week_start_date")
+  weekEndDate     DateTime  @map("week_end_date")
+
+  savedAmount     Float     @map("saved_amount")
+  categories      Json      // Breakdown por categoria
+  suggestions     Json      // Sugestoes de uso
+  messageTemplate String    @map("message_template")
+
+  sentAt          DateTime  @default(now()) @map("sent_at")
+  opened          Boolean   @default(false)
+  openedAt        DateTime? @map("opened_at")
+
+  @@index([userId])
+  @@index([weekStartDate])
+  @@map("friday_notifications")
+}
+
+model OnboardingEvent {
+  id        String   @id @default(cuid())
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  sessionId String   @map("session_id")
+  step      Int
+  action    String   // "view" | "skip" | "complete" | "drop"
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([sessionId])
+  @@map("onboarding_events")
+}
+
+model Referral {
+  id           String    @id @default(cuid())
+  referrerId   String    @map("referrer_id")
+  referrer     User      @relation("ReferrerReferrals", fields: [referrerId], references: [id])
+  refereeId    String    @unique @map("referee_id")
+  referee      User      @relation("RefereeReferral", fields: [refereeId], references: [id])
+  referralCode String    @map("referral_code")
+  activatedAt  DateTime  @default(now()) @map("activated_at")
+  rewarded     Boolean   @default(false)
+  rewardedAt   DateTime? @map("rewarded_at")
+
+  @@index([referrerId])
+  @@map("referrals")
+}
+
+model Budget {
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categoryId  String?   @map("category_id")
+  category    Category? @relation(fields: [categoryId], references: [id])
+
+  amount      Float
+  period      String    @default("monthly") // "monthly" | "weekly" | "yearly"
+
+  currentSpent Float    @default(0) @map("current_spent")
+  lastReset    DateTime @default(now()) @map("last_reset")
+
+  alert50Sent  Boolean  @default(false) @map("alert_50_sent")
+  alert80Sent  Boolean  @default(false) @map("alert_80_sent")
+  alert100Sent Boolean  @default(false) @map("alert_100_sent")
+
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  alerts      BudgetAlert[]
+  history     BudgetHistory[]
+
+  @@index([userId])
+  @@index([userId, active])
+  @@map("budgets")
+}
+
+model BudgetAlert {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  budgetId     String   @map("budget_id")
+  budget       Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  threshold    Int
+  amount       Float
+  budgetAmount Float    @map("budget_amount")
+  percentage   Int
+  categoryName String?  @map("category_name")
+
+  sentAt       DateTime @default(now()) @map("sent_at")
+  opened       Boolean  @default(false)
+  openedAt     DateTime? @map("opened_at")
+
+  @@index([userId])
+  @@index([budgetId])
+  @@map("budget_alerts")
+}
+
+model BudgetHistory {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  budgetId     String   @map("budget_id")
+  budget       Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+
+  month        String
+  targetAmount Float    @map("target_amount")
+  spentAmount  Float    @map("spent_amount")
+  percentage   Int
+  achieved     Boolean
+
+  createdAt    DateTime @default(now())
+
+  @@unique([budgetId, month])
+  @@index([userId])
+  @@map("budget_history")
+}
