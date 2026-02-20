@@ -37,14 +37,16 @@ Push / PR para main
 
 ---
 
-## Secrets necessários no GitHub
+## Secrets configurados no GitHub
 
-Configurar em: **Settings → Secrets and variables → Actions**
+Configurados via Railway GraphQL API + GitHub REST API (libsodium).
 
-| Secret | Onde obter |
-|--------|-----------|
-| `RAILWAY_TOKEN` | Railway dashboard → Account Settings → Tokens |
-| `RAILWAY_SERVICE_ID` | Railway dashboard → Seu projeto → Service → Settings |
+| Secret | Valor |
+|--------|-------|
+| `RAILWAY_TOKEN` | Project Token gerado via Railway API (não session token) |
+| `RAILWAY_SERVICE_ID` | `adedf5aa-2534-488a-a330-d61779157d7e` |
+
+> **Nota técnica:** O `RAILWAY_TOKEN` deve ser um **Project Token** gerado via `projectTokenCreate` mutation GraphQL — tokens de sessão interativa (`rw_Fe26.*`) não funcionam em CI.
 
 ---
 
@@ -64,7 +66,7 @@ Configurar em: **Settings → Secrets and variables → Actions**
 
 1. Push chega em `main` com mudanças em `apps/backend/**`
 2. GitHub Actions instala Railway CLI
-3. `railway up --detach` faz upload do código
+3. `railway up --detach --service <SERVICE_ID>` faz upload do código
 4. Railway builda via Nixpacks (usando `nixpacks.toml`)
 5. Railway executa `node dist/main` (via `railway.toml`)
 
