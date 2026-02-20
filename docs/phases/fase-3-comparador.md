@@ -1,6 +1,6 @@
 # FASE 3 — Comparador de Preços entre Lojas
 
-**Status:** 📋 Planejada (P1)
+**Status:** ✅ Concluída em 20/02/2026
 
 ---
 

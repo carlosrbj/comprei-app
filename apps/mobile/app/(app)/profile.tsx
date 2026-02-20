@@ -385,6 +385,12 @@ export default function Profile() {
                         onPress={() => router.push('/(app)/budgets' as any)}
                     />
                     <MenuItem
+                        emoji="🏪"
+                        label="Comparador de Preços"
+                        badge="Pro"
+                        onPress={() => isPro ? router.push('/(app)/compare' as any) : router.push('/(app)/plans' as any)}
+                    />
+                    <MenuItem
                         emoji="🔔"
                         label="Notificações"
                         onPress={() => Alert.alert('Em breve', 'Configuração de notificações em desenvolvimento')}

@@ -14,9 +14,10 @@ import { ReferralModule } from './referral/referral.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { ExportsModule } from './exports/exports.module';
 import { BudgetsModule } from './budgets/budgets.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, PrismaModule, InvoicesModule, CategoriesModule, ReportsModule, PaymentsModule, NotificationsModule, FridayModule, ReferralModule, AnalyticsModule, ExportsModule, BudgetsModule],
+  imports: [UsersModule, AuthModule, PrismaModule, InvoicesModule, CategoriesModule, ReportsModule, PaymentsModule, NotificationsModule, FridayModule, ReferralModule, AnalyticsModule, ExportsModule, BudgetsModule, ProductsModule],
   controllers: [AppController],
   providers: [AppService],
 })

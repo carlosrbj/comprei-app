@@ -1,4 +1,4 @@
-import { View, Text, FlatList, RefreshControl, ActivityIndicator, StatusBar } from 'react-native';
+import { View, Text, FlatList, RefreshControl, ActivityIndicator, StatusBar, TouchableOpacity } from 'react-native';
 import { useAuthStore } from '../../src/store/authStore';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useState, useCallback, useMemo } from 'react';
@@ -11,6 +11,7 @@ import { InsightCard } from '../../src/components/dashboard/InsightCard';
 import { RecentPurchase } from '../../src/components/dashboard/RecentPurchase';
 import { SyncIndicator } from '../../src/components/SyncIndicator';
 import { OfflineBanner } from '../../src/components/OfflineBanner';
+import { productsService } from '../../src/services/products';
 
 // Mock budget data — will be replaced by real data from budgetStore/backend
 const MOCK_BUDGETS = [
@@ -26,6 +27,7 @@ export default function Dashboard() {
     const { invoices, setInvoices } = useInvoiceStore();
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [savingsPotential, setSavingsPotential] = useState(0);
 
     const fetchInvoices = async () => {
         try {
@@ -39,9 +41,19 @@ export default function Dashboard() {
         }
     };
 
+    const fetchSavings = async () => {
+        try {
+            const { totalPotential } = await productsService.getSavingsSummary();
+            setSavingsPotential(totalPotential);
+        } catch {
+            // Pro feature — silent fail for free users
+        }
+    };
+
     useFocusEffect(
         useCallback(() => {
             fetchInvoices();
+            fetchSavings();
         }, [])
     );
 
@@ -188,6 +200,42 @@ export default function Dashboard() {
                                 title={invoices.length > 0 ? 'Insight da Semana' : 'Dica rápida'}
                                 text={insightText}
                             />
+
+                            {/* Savings Widget */}
+                            {savingsPotential > 0.5 && (
+                                <TouchableOpacity
+                                    onPress={() => router.push('/compare')}
+                                    activeOpacity={0.8}
+                                    style={{
+                                        backgroundColor: COLORS.SECONDARY_LIGHT,
+                                        borderRadius: 14,
+                                        padding: 14,
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        gap: 12,
+                                        borderWidth: 1,
+                                        borderColor: '#FAD99A',
+                                        marginBottom: 4,
+                                    }}
+                                >
+                                    <View style={{
+                                        width: 40, height: 40, borderRadius: 20,
+                                        backgroundColor: '#FEE8B0',
+                                        alignItems: 'center', justifyContent: 'center',
+                                    }}>
+                                        <Ionicons name="trending-down" size={20} color={COLORS.SECONDARY} />
+                                    </View>
+                                    <View style={{ flex: 1 }}>
+                                        <Text style={{ fontSize: 13, fontWeight: '800', color: '#92540A' }}>
+                                            Economize {formatCurrency(savingsPotential)} por compra
+                                        </Text>
+                                        <Text style={{ fontSize: 12, color: '#B87333', marginTop: 1 }}>
+                                            Compre os mesmos produtos na loja mais barata →
+                                        </Text>
+                                    </View>
+                                    <Ionicons name="chevron-forward" size={16} color="#B87333" />
+                                </TouchableOpacity>
+                            )}
 
                             {/* Section label */}
                             <Text style={{

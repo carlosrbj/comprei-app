@@ -123,6 +123,10 @@ export default function AppLayout() {
                 name="budgets/suggestions"
                 options={{ href: null }}
             />
+            <Tabs.Screen
+                name="compare"
+                options={{ href: null }}
+            />
         </Tabs>
     );
 }

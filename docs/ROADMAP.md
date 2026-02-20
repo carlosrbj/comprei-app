@@ -10,7 +10,7 @@ Plano completo de desenvolvimento organizado em fases sequenciais. Cada fase tem
 |------|--------|--------|-----------|
 | 1 | Organização Git e Estrutura do Repositório | ✅ Concluída | [fase-1-git.md](phases/fase-1-git.md) |
 | 2 | CI/CD e Deploy Infrastructure | ✅ Concluída | [fase-2-cicd.md](phases/fase-2-cicd.md) |
-| 3 | Comparador de Preços entre Lojas | 📋 Planejada | [fase-3-comparador.md](phases/fase-3-comparador.md) |
+| 3 | Comparador de Preços entre Lojas | ✅ Concluída | [fase-3-comparador.md](phases/fase-3-comparador.md) |
 | 4 | Modo Família | 📋 Planejada | [fase-4-familia.md](phases/fase-4-familia.md) |
 | 5 | Inflação Pessoal e Previsão de Gastos | 📋 Planejada | [fase-5-inflacao.md](phases/fase-5-inflacao.md) |
 
