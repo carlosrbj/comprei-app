@@ -22,7 +22,7 @@ export class ProductsController {
      * Returns distinct product descriptions matching the query.
      */
     @Get('search')
-    async search(@Request() req, @Query('q') q: string) {
+    async search(@Request() req: any, @Query('q') q: string) {
         if (!q || q.trim().length < 2) return [];
         return this.productsService.searchProducts(req.user.id, q.trim());
     }
@@ -35,7 +35,7 @@ export class ProductsController {
     @UseGuards(PlanGuard)
     @RequiresPlan('pro')
     async priceHistory(
-        @Request() req,
+        @Request() req: any,
         @Query('name') name: string,
         @Query('limit', new DefaultValuePipe(30), ParseIntPipe) limit: number,
     ) {
@@ -50,7 +50,7 @@ export class ProductsController {
     @Get('compare')
     @UseGuards(PlanGuard)
     @RequiresPlan('pro')
-    async compare(@Request() req, @Query('name') name: string) {
+    async compare(@Request() req: any, @Query('name') name: string) {
         if (!name) return null;
         return this.productsService.compareStores(req.user.id, name);
     }
@@ -63,7 +63,7 @@ export class ProductsController {
     @UseGuards(PlanGuard)
     @RequiresPlan('pro')
     async topSavings(
-        @Request() req,
+        @Request() req: any,
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
     ) {
         return this.productsService.getTopSavings(req.user.id, limit);
@@ -76,7 +76,7 @@ export class ProductsController {
     @Get('savings-summary')
     @UseGuards(PlanGuard)
     @RequiresPlan('pro')
-    async savingsSummary(@Request() req) {
+    async savingsSummary(@Request() req: any) {
         const total = await this.productsService.getTotalSavingsPotential(req.user.id);
         return { totalPotential: total };
     }
