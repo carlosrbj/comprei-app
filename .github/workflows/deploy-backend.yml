@@ -27,10 +27,9 @@ jobs:
         run: npm install -g @railway/cli
 
       - name: Deploy backend
-        run: railway up --detach
+        run: railway up --detach --service ${{ secrets.RAILWAY_SERVICE_ID }}
         working-directory: apps/backend
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
           # Project and service IDs (non-sensitive — just identifiers)
           RAILWAY_PROJECT_ID: 672fc509-ac92-4f98-86ac-2226befa07c9
-          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
