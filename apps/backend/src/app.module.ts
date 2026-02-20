@@ -15,10 +15,27 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { ExportsModule } from './exports/exports.module';
 import { BudgetsModule } from './budgets/budgets.module';
 import { ProductsModule } from './products/products.module';
+import { InsightsModule } from './insights/insights.module';
 
 @Module({
-  imports: [UsersModule, AuthModule, PrismaModule, InvoicesModule, CategoriesModule, ReportsModule, PaymentsModule, NotificationsModule, FridayModule, ReferralModule, AnalyticsModule, ExportsModule, BudgetsModule, ProductsModule],
+  imports: [
+    UsersModule,
+    AuthModule,
+    PrismaModule,
+    InvoicesModule,
+    CategoriesModule,
+    ReportsModule,
+    PaymentsModule,
+    NotificationsModule,
+    FridayModule,
+    ReferralModule,
+    AnalyticsModule,
+    ExportsModule,
+    BudgetsModule,
+    ProductsModule,
+    InsightsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

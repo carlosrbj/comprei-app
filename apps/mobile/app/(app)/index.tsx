@@ -12,6 +12,9 @@ import { RecentPurchase } from '../../src/components/dashboard/RecentPurchase';
 import { SyncIndicator } from '../../src/components/SyncIndicator';
 import { OfflineBanner } from '../../src/components/OfflineBanner';
 import { productsService } from '../../src/services/products';
+import { insightsService } from '../../src/services/insights';
+import { ForecastBar } from '../../src/components/ForecastBar';
+import type { DashboardInsights } from '../../src/services/insights';
 
 // Mock budget data — will be replaced by real data from budgetStore/backend
 const MOCK_BUDGETS = [
@@ -28,6 +31,7 @@ export default function Dashboard() {
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
     const [savingsPotential, setSavingsPotential] = useState(0);
+    const [dashInsights, setDashInsights] = useState<DashboardInsights | null>(null);
 
     const fetchInvoices = async () => {
         try {
@@ -50,10 +54,20 @@ export default function Dashboard() {
         }
     };
 
+    const fetchDashInsights = async () => {
+        try {
+            const insights = await insightsService.getDashboard();
+            setDashInsights(insights);
+        } catch {
+            // Silent fail
+        }
+    };
+
     useFocusEffect(
         useCallback(() => {
             fetchInvoices();
             fetchSavings();
+            fetchDashInsights();
         }, [])
     );
 
@@ -201,10 +215,22 @@ export default function Dashboard() {
                                 text={insightText}
                             />
 
+                            {/* Forecast Widget */}
+                            {dashInsights && dashInsights.forecast.forecast > 0 && (
+                                <ForecastBar
+                                    forecast={dashInsights.forecast.forecast}
+                                    currentSpent={dashInsights.forecast.currentSpent}
+                                    progressPercent={dashInsights.forecast.progressPercent}
+                                    daysLeft={dashInsights.forecast.daysLeft}
+                                    isOnTrack={dashInsights.forecast.isOnTrack}
+                                    currentMonth={capitalizedMonth}
+                                />
+                            )}
+
                             {/* Savings Widget */}
                             {savingsPotential > 0.5 && (
                                 <TouchableOpacity
-                                    onPress={() => router.push('/compare')}
+                                    onPress={() => router.push('/compare' as any)}
                                     activeOpacity={0.8}
                                     style={{
                                         backgroundColor: COLORS.SECONDARY_LIGHT,

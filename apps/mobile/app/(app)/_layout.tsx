@@ -127,6 +127,14 @@ export default function AppLayout() {
                 name="compare"
                 options={{ href: null }}
             />
+            <Tabs.Screen
+                name="inflation"
+                options={{ href: null }}
+            />
+            <Tabs.Screen
+                name="wrapped"
+                options={{ href: null }}
+            />
         </Tabs>
     );
 }

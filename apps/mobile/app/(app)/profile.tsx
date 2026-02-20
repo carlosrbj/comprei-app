@@ -391,6 +391,18 @@ export default function Profile() {
                         onPress={() => isPro ? router.push('/(app)/compare' as any) : router.push('/(app)/plans' as any)}
                     />
                     <MenuItem
+                        emoji="📈"
+                        label="Inflação Pessoal"
+                        badge="Pro"
+                        onPress={() => isPro ? router.push('/(app)/inflation' as any) : router.push('/(app)/plans' as any)}
+                    />
+                    <MenuItem
+                        emoji="🎁"
+                        label={`Wrapped ${new Date().getFullYear()}`}
+                        badge="Pro"
+                        onPress={() => isPro ? router.push('/(app)/wrapped' as any) : router.push('/(app)/plans' as any)}
+                    />
+                    <MenuItem
                         emoji="🔔"
                         label="Notificações"
                         onPress={() => Alert.alert('Em breve', 'Configuração de notificações em desenvolvimento')}
