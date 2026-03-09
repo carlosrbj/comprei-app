@@ -1,6 +1,7 @@
 import { Injectable, ConflictException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { PrismaService } from '../prisma/prisma.service';
 import { ReferralService } from '../referral/referral.service';
 import { Prisma } from '@prisma/client';
@@ -201,6 +202,21 @@ export class UsersService {
                 unlocked: user?.plan === 'pro',
             },
         ];
+    }
+
+    async updateProfile(id: string, dto: UpdateProfileDto) {
+        return this.prisma.user.update({
+            where: { id },
+            data: { name: dto.name },
+            select: {
+                id: true,
+                email: true,
+                name: true,
+                plan: true,
+                planExpiresAt: true,
+                createdAt: true,
+            },
+        });
     }
 
     update(id: string, updateUserDto: UpdateUserDto) {

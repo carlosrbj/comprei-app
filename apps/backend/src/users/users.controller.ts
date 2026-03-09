@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request }
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
@@ -23,6 +24,12 @@ export class UsersController {
     @Get('me/stats')
     getStats(@Request() req: any) {
         return this.usersService.getUserStats(req.user.id);
+    }
+
+    @UseGuards(AuthGuard('jwt'))
+    @Patch('me')
+    updateProfile(@Request() req: any, @Body() updateProfileDto: UpdateProfileDto) {
+        return this.usersService.updateProfile(req.user.id, updateProfileDto);
     }
 
     @Get()

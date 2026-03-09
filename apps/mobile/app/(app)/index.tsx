@@ -196,7 +196,7 @@ export default function Dashboard() {
                                     borderRadius: 100,
                                     alignSelf: 'flex-start',
                                 }}>
-                                    <Text style={{ fontSize: 12, fontWeight: '700', color: '#7DFFB3' }}>
+                                    <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.PRIMARY_LIGHT }}>
                                         {invoices.length} {invoices.length === 1 ? 'nota' : 'notas'} este mês
                                     </Text>
                                 </View>
@@ -232,6 +232,8 @@ export default function Dashboard() {
                                 <TouchableOpacity
                                     onPress={() => router.push('/compare' as any)}
                                     activeOpacity={0.8}
+                                    accessibilityRole="button"
+                                    accessibilityLabel={`Economize ${formatCurrency(savingsPotential)} por compra. Ver comparador de preços.`}
                                     style={{
                                         backgroundColor: COLORS.SECONDARY_LIGHT,
                                         borderRadius: 14,

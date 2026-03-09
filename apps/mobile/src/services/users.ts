@@ -43,4 +43,10 @@ export const usersService = {
         const { data } = await axios.get(`${API_URL}/users/me/stats`, { headers });
         return data;
     },
+
+    async updateProfile(payload: { name: string }): Promise<UserProfile> {
+        const headers = await getAuthHeaders();
+        const { data } = await axios.patch(`${API_URL}/users/me`, payload, { headers });
+        return data;
+    },
 };

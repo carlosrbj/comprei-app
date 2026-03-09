@@ -153,7 +153,7 @@ export class ScraperService {
                 const qtdText = $(el).find('.Rqtd').text().trim(); // Qtde.:1
                 const unText = $(el).find('.RUN').text().trim(); // UN: UND or UN: KG
                 const unitPriceText = $(el).find('.RvlUnit').text().trim(); // Vl. Unit.: 15,49
-                const totalText = $(el).find('.valor').text().trim(); // in right column
+                const totalText = $(el).find('.valor').first().text().trim(); // in right column
 
                 const code = codeText.match(/\(Código:\s*(\w+)\)/)?.[1] || `ITEM-${i}`;
                 const quantity = this.parseBrNumber(qtdText.replace('Qtde.:', ''));

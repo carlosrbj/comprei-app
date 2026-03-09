@@ -10,7 +10,7 @@ import {
     Dimensions,
     Alert,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { invoiceService } from '../../src/services/invoices';
 import { useInvoiceStore } from '../../src/store/invoiceStore';
@@ -131,6 +131,15 @@ export default function Scanner() {
         setScanState('idle');
         setErrorMessage('');
     };
+
+    // Reset scanner state every time the screen gains focus
+    useFocusEffect(
+        useCallback(() => {
+            setScanState('idle');
+            setErrorMessage('');
+            isProcessing.current = false;
+        }, [])
+    );
 
     // --- Permissão ---
     if (!permission) {

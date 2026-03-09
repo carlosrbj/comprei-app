@@ -1,10 +1,9 @@
-import { View, Text, TouchableOpacity, ScrollView, StatusBar, ActivityIndicator, Alert, Switch } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StatusBar, ActivityIndicator, Alert, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useState, useCallback } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useAuthStore } from '../../src/store/authStore';
 import { useInvoiceStore } from '../../src/store/invoiceStore';
-import { useThemeStore } from '../../src/store/themeStore';
 import { useOnboardingStore } from '../../src/store/onboardingStore';
 import { usersService, UserProfile, UserStats, Badge } from '../../src/services/users';
 import { COLORS } from '../../src/constants/colors';
@@ -99,7 +98,6 @@ function MenuItem({ emoji, label, onPress, badge, rightElement }: {
 export default function Profile() {
     const { user, signOut } = useAuthStore();
     const { invoices } = useInvoiceStore();
-    const { isDark, toggleTheme } = useThemeStore();
     const { reset: resetOnboarding } = useOnboardingStore();
     const router = useRouter();
 
@@ -107,6 +105,9 @@ export default function Profile() {
     const [profile, setProfile] = useState<UserProfile | null>(null);
     const [stats, setStats] = useState<UserStats | null>(null);
     const [showExportModal, setShowExportModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editName, setEditName] = useState('');
+    const [savingProfile, setSavingProfile] = useState(false);
 
     useFocusEffect(
         useCallback(() => {
@@ -152,6 +153,29 @@ export default function Profile() {
 
     const handleUpgrade = () => {
         router.push('/(app)/plans' as any);
+    };
+
+    const handleOpenEdit = () => {
+        setEditName(displayName === 'Usuário' ? '' : displayName);
+        setShowEditModal(true);
+    };
+
+    const handleSaveProfile = async () => {
+        const trimmed = editName.trim();
+        if (!trimmed || trimmed.length < 2) {
+            Alert.alert('Nome inválido', 'O nome deve ter no mínimo 2 caracteres.');
+            return;
+        }
+        setSavingProfile(true);
+        try {
+            const updated = await usersService.updateProfile({ name: trimmed });
+            setProfile(updated);
+            setShowEditModal(false);
+        } catch (error: any) {
+            Alert.alert('Erro', error?.response?.data?.message || 'Não foi possível salvar o perfil.');
+        } finally {
+            setSavingProfile(false);
+        }
     };
 
     const handleResetOnboarding = () => {
@@ -215,9 +239,14 @@ export default function Profile() {
                         </View>
 
                         <View style={{ flex: 1 }}>
-                            <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5 }}>
-                                {displayName}
-                            </Text>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                <Text style={{ fontSize: 22, fontWeight: '800', color: '#FFFFFF', letterSpacing: -0.5 }}>
+                                    {displayName}
+                                </Text>
+                                <TouchableOpacity onPress={handleOpenEdit} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                                    <Ionicons name="pencil" size={14} color="rgba(255,255,255,0.7)" />
+                                </TouchableOpacity>
+                            </View>
                             <Text style={{ fontSize: 13, color: 'rgba(255,255,255,0.65)', marginTop: 2 }}>
                                 {displayEmail}
                             </Text>
@@ -430,14 +459,16 @@ export default function Profile() {
                     <MenuItem
                         emoji="🌙"
                         label="Tema Escuro"
-                        onPress={toggleTheme}
+                        onPress={() => Alert.alert('Em breve', 'O tema escuro está em desenvolvimento e será liberado em breve.')}
                         rightElement={
-                            <Switch
-                                value={isDark}
-                                onValueChange={toggleTheme}
-                                trackColor={{ false: COLORS.BORDER, true: COLORS.PRIMARY }}
-                                thumbColor="#FFFFFF"
-                            />
+                            <View style={{
+                                backgroundColor: COLORS.BORDER,
+                                paddingHorizontal: 8, paddingVertical: 3, borderRadius: 100,
+                            }}>
+                                <Text style={{ fontSize: 10, fontWeight: '700', color: COLORS.TEXT_MUTED }}>
+                                    Em breve
+                                </Text>
+                            </View>
                         }
                     />
 
@@ -473,6 +504,81 @@ export default function Profile() {
             </ScrollView>
 
             <ExportModal visible={showExportModal} onClose={() => setShowExportModal(false)} />
+
+            {/* Edit Profile Modal */}
+            <Modal visible={showEditModal} transparent animationType="fade" onRequestClose={() => setShowEditModal(false)}>
+                <KeyboardAvoidingView
+                    style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                >
+                    <View style={{
+                        backgroundColor: COLORS.SURFACE,
+                        borderRadius: 20,
+                        padding: 24,
+                        width: '88%',
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 8 },
+                        shadowOpacity: 0.15,
+                        shadowRadius: 24,
+                        elevation: 10,
+                    }}>
+                        <Text style={{ fontSize: 18, fontWeight: '800', color: COLORS.TEXT, marginBottom: 6 }}>
+                            Editar Perfil
+                        </Text>
+                        <Text style={{ fontSize: 13, color: COLORS.TEXT_MUTED, marginBottom: 20 }}>
+                            Como você quer ser chamado no Comprei?
+                        </Text>
+
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.TEXT_MUTED, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                            Nome
+                        </Text>
+                        <TextInput
+                            value={editName}
+                            onChangeText={setEditName}
+                            placeholder="Seu nome"
+                            placeholderTextColor={COLORS.TEXT_MUTED}
+                            autoFocus
+                            style={{
+                                borderWidth: 1.5,
+                                borderColor: COLORS.BORDER,
+                                borderRadius: 12,
+                                padding: 14,
+                                fontSize: 15,
+                                color: COLORS.TEXT,
+                                marginBottom: 20,
+                            }}
+                        />
+
+                        <View style={{ flexDirection: 'row', gap: 10 }}>
+                            <TouchableOpacity
+                                onPress={() => setShowEditModal(false)}
+                                style={{
+                                    flex: 1, padding: 14, borderRadius: 12,
+                                    backgroundColor: COLORS.BG, alignItems: 'center',
+                                }}
+                            >
+                                <Text style={{ fontSize: 14, fontWeight: '700', color: COLORS.TEXT_MUTED }}>
+                                    Cancelar
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={handleSaveProfile}
+                                disabled={savingProfile}
+                                style={{
+                                    flex: 1, padding: 14, borderRadius: 12,
+                                    backgroundColor: COLORS.PRIMARY, alignItems: 'center',
+                                    opacity: savingProfile ? 0.6 : 1,
+                                }}
+                            >
+                                {savingProfile
+                                    ? <ActivityIndicator size="small" color="#fff" />
+                                    : <Text style={{ fontSize: 14, fontWeight: '700', color: '#fff' }}>Salvar</Text>
+                                }
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </KeyboardAvoidingView>
+            </Modal>
         </View>
     );
 }

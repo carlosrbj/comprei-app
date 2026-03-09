@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, FlatList, SectionList, TouchableOpacity, StatusBar, ActivityIndicator } from 'react-native';
 import { useCallback, useState, useMemo } from 'react';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -132,6 +132,9 @@ export default function History() {
                     return (
                         <TouchableOpacity
                             onPress={() => setActiveFilter(item.label)}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Filtrar por ${item.label}`}
+                            accessibilityState={{ selected: isActive }}
                             style={{
                                 paddingHorizontal: 16,
                                 paddingVertical: 8,
@@ -153,36 +156,36 @@ export default function History() {
                 }}
             />
 
-            {/* Invoice list grouped by month */}
-            <FlatList
-                data={groupedInvoices}
-                keyExtractor={(item) => item.title}
+            {/* Invoice list grouped by month — SectionList virtualizes all rows */}
+            <SectionList
+                sections={groupedInvoices}
+                keyExtractor={(item) => item.id!}
                 contentContainerStyle={{ paddingBottom: 100 }}
-                renderItem={({ item: group }) => (
-                    <View>
-                        <View style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            paddingHorizontal: 24,
-                            paddingVertical: 12,
-                            borderTopWidth: 1,
-                            borderTopColor: COLORS.BORDER,
-                        }}>
-                            <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.TEXT_MUTED, textTransform: 'uppercase', letterSpacing: 0.8 }}>
-                                {group.title}
-                            </Text>
-                            <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.TEXT_MUTED }}>
-                                {formatCurrency(group.total)}
-                            </Text>
-                        </View>
-                        {group.data.map((invoice) => (
-                            <View key={invoice.id} style={{ paddingHorizontal: 16 }}>
-                                <HistoryCard
-                                    invoice={invoice}
-                                    onPress={() => router.push(`/invoice/${invoice.id}`)}
-                                />
-                            </View>
-                        ))}
+                stickySectionHeadersEnabled={false}
+                renderSectionHeader={({ section: group }) => (
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        paddingHorizontal: 24,
+                        paddingVertical: 12,
+                        borderTopWidth: 1,
+                        borderTopColor: COLORS.BORDER,
+                        backgroundColor: COLORS.BG,
+                    }}>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.TEXT_MUTED, textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                            {group.title}
+                        </Text>
+                        <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.TEXT_MUTED }}>
+                            {formatCurrency(group.total)}
+                        </Text>
+                    </View>
+                )}
+                renderItem={({ item: invoice }) => (
+                    <View style={{ paddingHorizontal: 16 }}>
+                        <HistoryCard
+                            invoice={invoice}
+                            onPress={() => router.push(`/invoice/${invoice.id}`)}
+                        />
                     </View>
                 )}
                 ListEmptyComponent={
