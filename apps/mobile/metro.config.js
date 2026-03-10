@@ -38,7 +38,7 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
 
 if (fs.existsSync(workspaceNodeModules)) {
     // Monorepo environment (local dev): use hoisted node_modules from workspace root.
-    config.watchFolders = [workspaceNodeModules];
+    config.watchFolders = [...(config.watchFolders ?? []), workspaceNodeModules];
     config.resolver.nodeModulesPaths = [
         path.resolve(projectRoot, "node_modules"),
         workspaceNodeModules,

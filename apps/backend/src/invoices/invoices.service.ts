@@ -111,17 +111,26 @@ export class InvoicesService {
             };
         }
 
-        // Sanity check: se o total for 0 ou menor que 10% da soma dos itens,
-        // usar a soma direta dos itens como fallback confiável.
+        // Sanity check: garante que o total não é menor que qualquer item individual
+        // nem menor que 50% da soma dos itens (permite até 50% de desconto real).
+        // O total da nota NUNCA pode ser menor que o preço do item mais caro.
         if (invoiceData!.items.length > 0) {
             const sumOfItems = invoiceData!.items.reduce(
                 (sum, item) => sum + item.totalPrice,
                 0,
             );
-            const threshold = sumOfItems * 0.1;
-            if (invoiceData!.total === 0 || (sumOfItems > 0 && invoiceData!.total < threshold)) {
+            const maxItemPrice = invoiceData!.items.reduce(
+                (max, item) => Math.max(max, item.totalPrice),
+                0,
+            );
+            const total = invoiceData!.total;
+            const isBelowMaxItem = maxItemPrice > 0 && total < maxItemPrice;
+            const isBelowHalfSum = sumOfItems > 0 && total < sumOfItems * 0.5 && invoiceData!.items.length > 2;
+            const isZero = total === 0;
+
+            if (isZero || isBelowMaxItem || isBelowHalfSum) {
                 this.logger.warn(
-                    `Total suspeito (${invoiceData!.total}) vs soma dos itens (${sumOfItems}). Usando soma.`,
+                    `Total suspeito (${total}) — maxItem=${maxItemPrice} sumOfItems=${sumOfItems}. Usando soma.`,
                 );
                 invoiceData!.total = sumOfItems;
             }

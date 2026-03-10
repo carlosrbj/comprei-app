@@ -98,36 +98,53 @@ export class ScraperService {
     }
 
     private extractTotalValue($: cheerio.CheerioAPI): number {
-        // Coleta TODOS os candidatos a total e usa o maior valor.
-        // Isso evita que valores parciais de pagamento (ex: "Valor a Pagar via Cartão: R$ 11,59")
-        // sobrescrevam o total correto quando múltiplos elementos correspondem ao seletor.
         const candidates: number[] = [];
 
-        $('.txtTit3').each((i, el) => {
+        // 1. Procura em .txtTit3 com label "Vl. Total" ou "Valor Total"
+        //    Usa o ÚLTIMO .valor do elemento (após o label) para evitar pegar contagens como "5 itens"
+        $('.txtTit3').each((_i, el) => {
             const text = $(el).text();
             const isTotal = text.includes('Vl. Total') || text.includes('Valor Total');
             const isPagar = text.includes('Valor a Pagar') && !text.includes('via') && !text.includes('parcial');
             if (isTotal || isPagar) {
-                // Pega apenas o PRIMEIRO .valor dentro do elemento (evita concatenação)
-                const valStr = $(el).find('.valor').first().text()
-                    || $(el).find('.totalNumb').first().text();
+                // Pega o ÚLTIMO .valor (após o label), não o primeiro (que pode ser contagem de itens)
+                const valorEls = $(el).find('.valor');
+                const valStr = valorEls.last().text() || valorEls.first().text()
+                    || $(el).find('.totalNumb').last().text();
                 if (valStr) {
                     const candidate = this.parseBrNumber(valStr);
-                    if (candidate > 0) candidates.push(candidate);
+                    // Filtra valores muito pequenos (ex: "5 itens") — total real é sempre >= 1 real
+                    if (candidate >= 1) candidates.push(candidate);
                 }
             }
         });
 
-        // Usa o maior valor entre os candidatos (o total da nota é sempre >= qualquer sub-valor)
         if (candidates.length > 0) {
             return Math.max(...candidates);
         }
 
-        // Fallback: elemento com classe .txtMax (valor em destaque no topo)
+        // 2. Fallback: .txtMax (valor em destaque, ex: total grande no topo da página)
         const txtMax = $('.txtMax').first().text();
         if (txtMax) {
             const v = this.parseBrNumber(txtMax);
-            if (v > 0) return v;
+            if (v >= 1) return v;
+        }
+
+        // 3. Fallback regex direto no texto da página
+        //    Procura por "Vl. Total" ou "Valor Total" seguido de um valor em reais
+        const bodyText = $.text();
+        const patterns = [
+            /Vl\.\s*Total\s*[:\-]?\s*R?\$?\s*([\d.,]+)/i,
+            /Valor\s+Total\s*[:\-]?\s*R?\$?\s*([\d.,]+)/i,
+        ];
+        for (const pattern of patterns) {
+            const matches = [...bodyText.matchAll(new RegExp(pattern.source, 'gi'))];
+            // Pega o ÚLTIMO match (o total real costuma aparecer por último na página)
+            if (matches.length > 0) {
+                const last = matches[matches.length - 1];
+                const v = this.parseBrNumber(last[1]);
+                if (v >= 1) return v;
+            }
         }
 
         return 0;
