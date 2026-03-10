@@ -56,18 +56,28 @@ export class ScraperService {
             const accessKey = this.extractAccessKey($);
             const totalValue = this.extractTotalValue($);
             const establishmentName = this.extractEstablishmentName($);
+            const storeCnpj = this.extractCnpj($);
+            const storeAddress = this.extractAddress($);
             const date = this.extractDate($);
             const items = this.extractItems($);
+            const discount = this.extractDiscount($);
+            const { paymentMethod, amountPaid } = this.extractPayment($);
 
-            this.logger.log(`Extracted data: ${JSON.stringify({ accessKey, totalValue, establishmentName, date, itemsCount: items.length })}`);
+            this.logger.log(`Extracted data: ${JSON.stringify({ accessKey, totalValue, establishmentName, storeCnpj, date, itemsCount: items.length })}`);
 
             const data = {
                 url,
                 accessKey: accessKey || `KEY-${Date.now()}`,
                 totalValue,
                 establishmentName,
+                storeCnpj,
+                storeAddress,
                 date: date || new Date(),
-                items
+                items,
+                discount,
+                amountToPay: totalValue,
+                paymentMethod,
+                amountPaid,
             };
 
             return data;
@@ -124,8 +134,79 @@ export class ScraperService {
     }
 
     private extractEstablishmentName($: cheerio.CheerioAPI): string {
-        // Usually at the top, class txtTopo
         return $('.txtTopo').first().text().trim() || $('.txtCenter').first().text().trim() || 'Estabelecimento Desconhecido';
+    }
+
+    private extractCnpj($: cheerio.CheerioAPI): string {
+        // Try to find CNPJ formatted as XX.XXX.XXX/XXXX-XX in page text
+        const bodyText = $.text();
+        const cnpjMatch = bodyText.match(/\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}/);
+        return cnpjMatch ? cnpjMatch[0] : '';
+    }
+
+    private extractAddress($: cheerio.CheerioAPI): string {
+        // SEFAZ PR typically has address in the second or third .txtTopo block
+        const blocks: string[] = [];
+        $('.txtTopo').each((_i, el) => {
+            const txt = $(el).text().trim();
+            if (txt) blocks.push(txt);
+        });
+        // First block is usually the store name; subsequent ones may be address
+        if (blocks.length > 1) return blocks.slice(1).join(', ');
+        // Fallback: look for address-like patterns in the body text (CEP or street abbreviations)
+        const bodyText = $.text();
+        const cepMatch = bodyText.match(/CEP:?\s*[\d]{5}-?[\d]{3}/i);
+        if (cepMatch) {
+            const idx = bodyText.indexOf(cepMatch[0]);
+            return bodyText.substring(Math.max(0, idx - 120), idx + cepMatch[0].length).replace(/\s+/g, ' ').trim();
+        }
+        return '';
+    }
+
+    private extractDiscount($: cheerio.CheerioAPI): number {
+        let discount = 0;
+        $('.txtTit3').each((_i, el) => {
+            const text = $(el).text();
+            if (text.includes('Desconto') || text.includes('desconto')) {
+                const valStr = $(el).find('.valor').first().text();
+                if (valStr) {
+                    const v = this.parseBrNumber(valStr);
+                    if (v > 0) discount = v;
+                }
+            }
+        });
+        return discount;
+    }
+
+    private extractPayment($: cheerio.CheerioAPI): { paymentMethod: string; amountPaid: number } {
+        let paymentMethod = '';
+        let amountPaid = 0;
+
+        $('.txtTit3').each((_i, el) => {
+            const text = $(el).text();
+            if (text.includes('Tipo de Pagamento') || text.includes('Forma de Pagamento') || text.includes('Pagamento')) {
+                // Look for the payment label text inside the element
+                const label = $(el).find('.txtTit').text().trim() || $(el).find('span').not('.valor').first().text().trim();
+                if (label && !paymentMethod) paymentMethod = label;
+            }
+            if (text.includes('Valor Pago') || text.includes('Troco')) {
+                const valStr = $(el).find('.valor').first().text();
+                if (valStr) {
+                    const v = this.parseBrNumber(valStr);
+                    if (v > 0 && !amountPaid) amountPaid = v;
+                }
+            }
+        });
+
+        // Fallback: look for payment keywords in any text node
+        if (!paymentMethod) {
+            const bodyText = $.text();
+            for (const keyword of ['Cartão de Débito', 'Cartão de Crédito', 'Dinheiro', 'PIX', 'Vale Alimentação', 'Vale Refeição']) {
+                if (bodyText.includes(keyword)) { paymentMethod = keyword; break; }
+            }
+        }
+
+        return { paymentMethod, amountPaid };
     }
 
     private extractDate($: cheerio.CheerioAPI): Date | null {

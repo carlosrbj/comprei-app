@@ -18,6 +18,10 @@ export interface ParsedInvoice {
   storeAddress: string;
   date: Date;
   total: number;
+  discount: number;
+  amountToPay: number;
+  paymentMethod: string;
+  amountPaid: number;
   items: ParsedInvoiceItem[];
   source: 'xml' | 'scraper';
 }
@@ -187,11 +191,10 @@ export class SefazService {
 
     const vNF   = icmsTot ? parseFloat(icmsTot.vNF?.[0]   ?? icmsTot.VNF?.[0]   ?? '0') : 0;
     const vProd = icmsTot ? parseFloat(icmsTot.vProd?.[0]  ?? '0') : 0;
+    const discount = icmsTot ? parseFloat(icmsTot.vDesc?.[0] ?? '0') : 0;
 
     let total = 0;
     if (vNF > 0) {
-      // Sanity check: se vNF for menor que 10% do total dos itens, provavelmente
-      // houve erro de parsing (XML retornou campo errado). Usar vProd ou soma dos itens.
       const threshold = sumOfItems > 0 ? sumOfItems * 0.1 : vProd * 0.1;
       if (sumOfItems > 0 && vNF < threshold) {
         this.logger.warn(
@@ -207,6 +210,25 @@ export class SefazService {
       total = sumOfItems;
     }
 
+    // Pagamento — seção <pag> com múltiplos <detPag>
+    const PAY_LABELS: Record<string, string> = {
+      '01': 'Dinheiro', '02': 'Cheque', '03': 'Cartão de Crédito',
+      '04': 'Cartão de Débito', '05': 'Crédito Loja', '10': 'Vale Alimentação',
+      '11': 'Vale Refeição', '12': 'Vale Presente', '13': 'Vale Combustível',
+      '15': 'Boleto Bancário', '90': 'Sem Pagamento', '99': 'Outros',
+    };
+    const pagSection = nfe.pag?.[0]?.detPag ?? [];
+    let amountPaid = 0;
+    const paymentTypes: string[] = [];
+    for (const det of pagSection) {
+      const tPag: string = det.tPag?.[0] ?? '';
+      const vPag: number = parseFloat(det.vPag?.[0] ?? '0');
+      amountPaid += vPag;
+      if (tPag) paymentTypes.push(PAY_LABELS[tPag] ?? `Tipo ${tPag}`);
+    }
+    const paymentMethod = paymentTypes.join(' + ') || '';
+    const amountToPay = total; // vNF já é o valor líquido a pagar
+
     return {
       accessKey,
       storeName,
@@ -214,6 +236,10 @@ export class SefazService {
       storeAddress,
       date,
       total,
+      discount,
+      amountToPay,
+      paymentMethod,
+      amountPaid,
       items,
       source: 'xml',
     };

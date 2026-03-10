@@ -45,8 +45,14 @@ export class InvoicesService {
         let invoiceData: {
             accessKey: string;
             storeName: string;
+            storeCnpj?: string;
+            storeAddress?: string;
             date: Date;
             total: number;
+            discount?: number;
+            amountToPay?: number;
+            paymentMethod?: string;
+            amountPaid?: number;
             items: Array<{
                 name: string;
                 code: string;
@@ -64,8 +70,14 @@ export class InvoicesService {
                 invoiceData = {
                     accessKey: parsed.accessKey || accessKey,
                     storeName: parsed.storeName,
+                    storeCnpj: parsed.storeCnpj,
+                    storeAddress: parsed.storeAddress,
                     date: parsed.date,
                     total: parsed.total,
+                    discount: parsed.discount,
+                    amountToPay: parsed.amountToPay,
+                    paymentMethod: parsed.paymentMethod,
+                    amountPaid: parsed.amountPaid,
                     items: parsed.items,
                 };
                 this.logger.log(`Invoice parsed from XML: ${parsed.storeName}`);
@@ -80,8 +92,14 @@ export class InvoicesService {
             invoiceData = {
                 accessKey: scraped.accessKey || accessKey,
                 storeName: scraped.establishmentName || 'Estabelecimento',
+                storeCnpj: scraped.storeCnpj,
+                storeAddress: scraped.storeAddress,
                 date: scraped.date ? new Date(scraped.date) : new Date(),
                 total: scraped.totalValue || 0,
+                discount: scraped.discount,
+                amountToPay: scraped.amountToPay,
+                paymentMethod: scraped.paymentMethod,
+                amountPaid: scraped.amountPaid,
                 items: (scraped.items || []).map((item: any) => ({
                     name: item.description || 'Produto',
                     code: item.code || `GEN-${Date.now()}-${Math.random()}`,
@@ -161,6 +179,12 @@ export class InvoicesService {
                         date: invoiceData!.date,
                         totalValue: invoiceData!.total,
                         establishmentName: invoiceData!.storeName,
+                        ...(invoiceData!.storeCnpj && { storeCnpj: invoiceData!.storeCnpj }),
+                        ...(invoiceData!.storeAddress && { storeAddress: invoiceData!.storeAddress }),
+                        ...(invoiceData!.discount != null && { discount: invoiceData!.discount }),
+                        ...(invoiceData!.amountToPay != null && { amountToPay: invoiceData!.amountToPay }),
+                        ...(invoiceData!.paymentMethod && { paymentMethod: invoiceData!.paymentMethod }),
+                        ...(invoiceData!.amountPaid != null && { amountPaid: invoiceData!.amountPaid }),
                         userId,
                     },
                 });

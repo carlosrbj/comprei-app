@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "f2ddd68b-9d60-4849-a354-e04618591545"
+      }
+    },
+    "android": {
+      "package": "com.laranjazda.leitornotafiscalmercado"
+    }
+  }
+}

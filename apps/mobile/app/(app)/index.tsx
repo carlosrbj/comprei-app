@@ -13,16 +13,9 @@ import { SyncIndicator } from '../../src/components/SyncIndicator';
 import { OfflineBanner } from '../../src/components/OfflineBanner';
 import { productsService } from '../../src/services/products';
 import { insightsService } from '../../src/services/insights';
+import { budgetsService, type Budget } from '../../src/services/budgets';
 import { ForecastBar } from '../../src/components/ForecastBar';
 import type { DashboardInsights } from '../../src/services/insights';
-
-// Mock budget data — will be replaced by real data from budgetStore/backend
-const MOCK_BUDGETS = [
-    { emoji: '🥩', name: 'Alimentação', spent: 0, limit: 1500, color: COLORS.PRIMARY },
-    { emoji: '🧴', name: 'Higiene & Beleza', spent: 0, limit: 300, color: COLORS.SECONDARY },
-    { emoji: '🧹', name: 'Limpeza', spent: 0, limit: 400, color: COLORS.CHART_BLUE },
-    { emoji: '🍺', name: 'Bebidas', spent: 0, limit: 250, color: COLORS.CHART_PURPLE },
-];
 
 export default function Dashboard() {
     const { user } = useAuthStore();
@@ -32,6 +25,7 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [savingsPotential, setSavingsPotential] = useState(0);
     const [dashInsights, setDashInsights] = useState<DashboardInsights | null>(null);
+    const [budgets, setBudgets] = useState<Budget[]>([]);
 
     const fetchInvoices = async () => {
         try {
@@ -63,11 +57,21 @@ export default function Dashboard() {
         }
     };
 
+    const fetchBudgets = async () => {
+        try {
+            const data = await budgetsService.getBudgets();
+            setBudgets(data);
+        } catch {
+            // Silent fail — user may have no budgets yet
+        }
+    };
+
     useFocusEffect(
         useCallback(() => {
             fetchInvoices();
             fetchSavings();
             fetchDashInsights();
+            fetchBudgets();
         }, [])
     );
 
@@ -76,13 +80,22 @@ export default function Dashboard() {
         fetchInvoices();
     }, []);
 
-    const totalGasto = useMemo(
-        () => invoices.reduce((acc, curr) => acc + Number(curr.totalValue), 0),
-        [invoices]
-    );
-
     const formatCurrency = (value: number) =>
         new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+
+    // Filter by invoice EMISSION date — a January invoice scanned in March counts as January
+    const thisMonthInvoices = useMemo(() => {
+        const now = new Date();
+        return invoices.filter(inv => {
+            const d = new Date(inv.date);
+            return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+        });
+    }, [invoices]);
+
+    const totalGasto = useMemo(
+        () => thisMonthInvoices.reduce((acc, curr) => acc + Number(curr.totalValue), 0),
+        [thisMonthInvoices]
+    );
 
     const recentInvoices = useMemo(
         () => [...invoices]
@@ -91,18 +104,16 @@ export default function Dashboard() {
         [invoices]
     );
 
-    // Budget rows with mock allocation based on total
-    const budgetRows = useMemo(() => {
-        // Simple heuristic: spread total across categories proportionally
-        const total = totalGasto;
-        return MOCK_BUDGETS.map((b, i) => ({
-            ...b,
-            spent: i === 0 ? total * 0.43
-                 : i === 1 ? total * 0.13
-                 : i === 2 ? total * 0.07
-                 : total * 0.07,
-        }));
-    }, [totalGasto]);
+    // Budget rows from real API data
+    const budgetRows = useMemo(() =>
+        budgets.map((b) => ({
+            emoji: b.category?.emoji ?? '📦',
+            name: b.category?.name ?? 'Categoria',
+            spent: b.spent ?? 0,
+            limit: b.amount,
+            color: b.category?.color ?? COLORS.PRIMARY,
+        })),
+    [budgets]);
 
     // Greeting based on time of day
     const hour = new Date().getHours();
@@ -197,7 +208,7 @@ export default function Dashboard() {
                                     alignSelf: 'flex-start',
                                 }}>
                                     <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.PRIMARY_LIGHT }}>
-                                        {invoices.length} {invoices.length === 1 ? 'nota' : 'notas'} este mês
+                                        {thisMonthInvoices.length} {thisMonthInvoices.length === 1 ? 'nota' : 'notas'} este mês
                                     </Text>
                                 </View>
                             </View>
@@ -207,7 +218,7 @@ export default function Dashboard() {
                         <View style={{ paddingHorizontal: 16, marginTop: -16 }}>
 
                             {/* Budget Card */}
-                            {totalGasto > 0 && <BudgetCard rows={budgetRows} />}
+                            {budgetRows.length > 0 && <BudgetCard rows={budgetRows} />}
 
                             {/* Insight Card */}
                             <InsightCard

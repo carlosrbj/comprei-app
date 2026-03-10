@@ -9,8 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 
@@ -83,12 +84,18 @@ model Invoice {
   date              DateTime
   totalValue        Decimal       @map("total_value") @db.Decimal(10, 2)
   establishmentName String        @map("establishment_name")
-  
+  storeCnpj         String?       @map("store_cnpj")
+  storeAddress      String?       @map("store_address")
+  discount          Decimal?      @db.Decimal(10, 2)
+  amountToPay       Decimal?      @map("amount_to_pay") @db.Decimal(10, 2)
+  paymentMethod     String?       @map("payment_method")
+  amountPaid        Decimal?      @map("amount_paid") @db.Decimal(10, 2)
+
   userId            String        @map("user_id")
   user              User          @relation(fields: [userId], references: [id])
-  
+
   items             InvoiceItem[]
-  
+
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 

@@ -33,5 +33,11 @@ export interface Invoice {
     date: string;
     totalValue: number;
     establishmentName: string;
+    storeCnpj?: string | null;
+    storeAddress?: string | null;
+    discount?: number | null;
+    amountToPay?: number | null;
+    paymentMethod?: string | null;
+    amountPaid?: number | null;
     items?: InvoiceItem[];
 }
